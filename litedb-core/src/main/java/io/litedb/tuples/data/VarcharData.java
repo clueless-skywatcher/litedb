@@ -1,15 +1,14 @@
 package io.litedb.tuples.data;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import lombok.Getter;
 
 public class VarcharData implements TupleData<String> {
-    public @Getter String value;
+    private @Getter String value;
 
-    public VarcharData(String value) {
-        this.value = value;
+    public VarcharData(String value, int maxCharLength) {
+        this.value = value.substring(0, maxCharLength);
     }
 
     public TupleDataEnum getType() {
@@ -17,7 +16,7 @@ public class VarcharData implements TupleData<String> {
     }
 
     public int getSize() {
-        return Integer.BYTES + value.getBytes().length;
+        return Integer.BYTES + value.length();
     }
 
     public byte[] serialize() {

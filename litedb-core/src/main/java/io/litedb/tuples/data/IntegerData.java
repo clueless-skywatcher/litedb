@@ -3,7 +3,6 @@ package io.litedb.tuples.data;
 import java.nio.ByteBuffer;
 
 import lombok.Getter;
-import lombok.val;
 
 public class IntegerData implements TupleData<Integer> {
     public @Getter Integer value;

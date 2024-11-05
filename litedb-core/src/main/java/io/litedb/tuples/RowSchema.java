@@ -1,10 +1,10 @@
 package io.litedb.tuples;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.litedb.tuples.data.info.TupleDatumInfo;
-import lombok.Getter;
 
 public class RowSchema {
     private Map<String, TupleDatumInfo> fields;
@@ -32,11 +32,31 @@ public class RowSchema {
         updateOffsets();
     }
 
+    public void addFields(Map<String, TupleDatumInfo> fields) {
+        for (Map.Entry<String, TupleDatumInfo> entry: fields.entrySet()) {
+            this.fields.put(entry.getKey(), entry.getValue());
+        }
+        updateOffsets();
+    }
+
     public TupleDatumInfo getFieldInfo(String fieldName) {
         return fields.get(fieldName);
     }
 
     public int getOffset(String fieldName) {
         return offsets.get(fieldName);
+    }
+
+    public int getSize() {
+        int size = 0;
+        for (TupleDatumInfo info: fields.values()) {
+            size += info.getSize();
+        }
+        // 1 extra byte will be required to retrieve the dirty byte
+        return size + 1;
+    }
+
+    public Collection<String> getFields() {
+        return fields.keySet();
     }
 }

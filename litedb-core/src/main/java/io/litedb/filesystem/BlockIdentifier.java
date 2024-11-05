@@ -1,28 +1,28 @@
 package io.litedb.filesystem;
 
-import java.io.RandomAccessFile;
+import java.io.IOException;
 
 import lombok.Getter;
 
 public class BlockIdentifier {
     private @Getter int blockNumber;
     private @Getter int blockSize;
-    private @Getter RandomAccessFile raf;
-
-    private @Getter byte[] contents;
-
-    public BlockIdentifier(RandomAccessFile raf, int blockNumber, int blockSize) {
-        this.raf = raf;
+    private @Getter String fileName;
+    
+    public BlockIdentifier(String fileName, int blockNumber, int blockSize) throws IOException {
+        this.fileName = fileName;
         this.blockNumber = blockNumber;
         this.blockSize = blockSize;
-        read();
     }
 
-    private void read() {
-        raf.readFully(contents, blockNumber * blockSize, blockSize);
-    }
+    public boolean equals(Object other) {
+        if (other instanceof BlockIdentifier) {
+            BlockIdentifier otherBlock = (BlockIdentifier) other;
+            return this.blockNumber == otherBlock.blockNumber 
+                && this.blockSize == otherBlock.blockSize
+                && this.fileName == otherBlock.fileName;
+        }
 
-    public void write() {
-        raf.write(contents, blockNumber * blockSize, blockSize);
+        return false;
     }
 }
