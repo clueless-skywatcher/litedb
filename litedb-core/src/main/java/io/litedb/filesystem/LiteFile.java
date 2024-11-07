@@ -15,7 +15,7 @@ public class LiteFile {
     private RandomAccessFile raf;
 
     public LiteFile(String fileName) throws IOException {
-        this.file = new File(fileName + ".lt");
+        this.file = new File(fileName);
         // If new file is created, append an empty block
         if (this.file.createNewFile() || this.file.length() == 0) {
             appendNewBlock(0);
@@ -27,7 +27,7 @@ public class LiteFile {
      * Appends a new block of 0's to the file
      */
     private void appendNewBlock(int blockNumber) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(file, "w");
+        RandomAccessFile raf = new RandomAccessFile(file, "rws");
         raf.seek(blockNumber * BLOCK_SIZE);
         byte[] emptyBytes = new byte[BLOCK_SIZE];
         Arrays.fill(emptyBytes, (byte) 0);
@@ -54,6 +54,11 @@ public class LiteFile {
         }
     }
 
+    public LitePage readBlock(int id) throws IOException {
+        BlockIdentifier block = new BlockIdentifier(this.file.getName(), 0, BLOCK_SIZE);
+        return readBlock(block);
+    }
+
     /**
      * Write the byte contents of a page to a given block of memory
      */
@@ -69,6 +74,11 @@ public class LiteFile {
                 )
             );
         }
+    }
+
+    public void writeBlock(int id, LitePage page) throws IOException {
+        BlockIdentifier block = new BlockIdentifier(this.file.getName(), id, BLOCK_SIZE);
+        writeBlock(block, page);
     }
 
     /**

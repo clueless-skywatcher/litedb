@@ -24,4 +24,8 @@ public class BooleanData implements TupleData<Boolean> {
         buffer.put((byte)(value ? 1 : 0));
         return buffer.array();
     }
+
+    public String toString() {
+        return Boolean.toString(value);
+    }
 }

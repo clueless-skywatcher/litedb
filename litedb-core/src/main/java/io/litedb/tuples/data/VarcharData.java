@@ -8,7 +8,7 @@ public class VarcharData implements TupleData<String> {
     private @Getter String value;
 
     public VarcharData(String value, int maxCharLength) {
-        this.value = value.substring(0, maxCharLength);
+        this.value = value.substring(0, Math.min(maxCharLength, value.length()));
     }
 
     public TupleDataEnum getType() {
@@ -31,5 +31,9 @@ public class VarcharData implements TupleData<String> {
             return this.value.equals(((VarcharData) other).value);
         }
         return false;
+    }
+
+    public String toString() {
+        return value;
     }
 }

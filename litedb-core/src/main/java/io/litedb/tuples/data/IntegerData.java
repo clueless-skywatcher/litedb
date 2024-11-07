@@ -30,4 +30,8 @@ public class IntegerData implements TupleData<Integer> {
         }
         return false;
     }
+
+    public String toString() {
+        return Integer.toString(value);
+    }
 }

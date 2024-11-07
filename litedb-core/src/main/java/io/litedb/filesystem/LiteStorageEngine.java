@@ -19,7 +19,7 @@ public class LiteStorageEngine {
     public LiteFile getFile(String fileName) {
         try {
             if (!openFiles.containsKey(fileName)) {
-                openFiles.put(fileName, new LiteFile(fileName));
+                openFiles.put(fileName, new LiteFile(dbDirectory + "/" + fileName));
             }
             return openFiles.get(fileName);
         } catch (IOException e) {

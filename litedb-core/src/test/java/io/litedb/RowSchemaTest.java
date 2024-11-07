@@ -7,7 +7,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.litedb.tuples.RowSchema;
+import io.litedb.tuples.TableSchema;
 import io.litedb.tuples.data.info.BooleanInfo;
 import io.litedb.tuples.data.info.IntegerInfo;
 import io.litedb.tuples.data.info.TupleDatumInfo;
@@ -21,7 +21,7 @@ public class RowSchemaTest {
         fields.put("field2", new VarcharInfo(85));
         fields.put("field3", new BooleanInfo());
 
-        RowSchema schema = new RowSchema(fields);
+        TableSchema schema = new TableSchema(fields);
 
         Assertions.assertEquals(schema.getSize(), 94);
 

@@ -6,11 +6,11 @@ import java.util.Map;
 
 import io.litedb.tuples.data.info.TupleDatumInfo;
 
-public class RowSchema {
+public class TableSchema {
     private Map<String, TupleDatumInfo> fields;
     private Map<String, Integer> offsets;
 
-    public RowSchema(Map<String, TupleDatumInfo> fields) {
+    public TableSchema(Map<String, TupleDatumInfo> fields) {
         this.fields = fields;
         updateOffsets();
     }
@@ -52,7 +52,7 @@ public class RowSchema {
         for (TupleDatumInfo info: fields.values()) {
             size += info.getSize();
         }
-        // 1 extra byte will be required to retrieve the dirty byte
+        // 1 extra byte will be required to store the dirty byte
         return size + 1;
     }
 

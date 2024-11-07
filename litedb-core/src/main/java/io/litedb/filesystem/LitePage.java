@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import io.litedb.tuples.data.BooleanData;
 import io.litedb.tuples.data.IntegerData;
 import io.litedb.tuples.data.TupleData;
-import io.litedb.tuples.data.TupleDataEnum;
 import io.litedb.tuples.data.VarcharData;
 import io.litedb.tuples.data.info.BooleanInfo;
 import io.litedb.tuples.data.info.IntegerInfo;
@@ -64,6 +63,16 @@ public class LitePage {
     public void setBoolean(int offset, boolean value) {
         contents.position(offset);
         contents.put((byte)(value ? 1 : 0));
+        contents.position(0);
+    }
+
+    public byte getByte(int offset) {
+        return contents.get(offset);
+    }
+
+    public void setByte(int offset, byte value) {
+        contents.position(offset);
+        contents.put(value);
         contents.position(0);
     }
 
