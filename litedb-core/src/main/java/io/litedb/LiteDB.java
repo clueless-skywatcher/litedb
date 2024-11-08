@@ -38,9 +38,17 @@ public class LiteDB
         try {
             DBScan scan = new FullTableScan(tableName, storageEngine, overseer);
             scan.begin();
-            do {
-                System.out.println(scan.readRow());
-            } while (scan.next());
+            LiteRow currentRow;
+            int rowCount = 0;
+            while ((currentRow = scan.readRow()) != null) {
+                System.out.println(currentRow);
+                if (rowCount == 140) {
+                    System.out.println();
+                }
+                rowCount++;
+                scan.next();
+            }
+            System.out.println(String.format("%d rows fetched", rowCount));
         } catch (IOException e) {
             e.printStackTrace();
         }

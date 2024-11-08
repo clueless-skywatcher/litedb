@@ -73,6 +73,9 @@ public class FullTableScan implements WritableScan {
 
         if (currentBlock < tableFile.getBlockCount() - 1) {
             moveToBlock(currentBlock + 1);
+            if (isDirtySlot()) {
+                return true;
+            }
             return next();
         }
 
@@ -90,12 +93,12 @@ public class FullTableScan implements WritableScan {
             }
         }
 
-        if (currentBlock < tableFile.getBlockCount() - 1) {
-            moveToBlock(currentBlock + 1);
-            insert(row);
-        } else {
-            return;
+        if (currentBlock == tableFile.getBlockCount() - 1) {
+            this.tableFile.appendNewBlock(currentBlock + 1);
         }
+
+        moveToBlock(currentBlock + 1);
+        insert(row);
     }
 
     private void insertIntoSlot(LiteRow row, int slotNumber) throws IOException {

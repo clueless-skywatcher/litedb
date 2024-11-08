@@ -26,7 +26,7 @@ public class LiteFile {
     /**
      * Appends a new block of 0's to the file
      */
-    private void appendNewBlock(int blockNumber) throws IOException {
+    public void appendNewBlock(int blockNumber) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(file, "rws");
         raf.seek(blockNumber * BLOCK_SIZE);
         byte[] emptyBytes = new byte[BLOCK_SIZE];
@@ -55,7 +55,7 @@ public class LiteFile {
     }
 
     public LitePage readBlock(int id) throws IOException {
-        BlockIdentifier block = new BlockIdentifier(this.file.getName(), 0, BLOCK_SIZE);
+        BlockIdentifier block = new BlockIdentifier(this.file.getName(), id, BLOCK_SIZE);
         return readBlock(block);
     }
 

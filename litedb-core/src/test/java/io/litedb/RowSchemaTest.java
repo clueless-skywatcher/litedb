@@ -23,7 +23,7 @@ public class RowSchemaTest {
 
         TableSchema schema = new TableSchema(fields);
 
-        Assertions.assertEquals(schema.getSize(), 94);
+        Assertions.assertEquals(schema.getSize(), 95);
 
         Assertions.assertEquals(schema.getOffset("field1"), 0);
         Assertions.assertEquals(schema.getOffset("field2"), 4);
@@ -37,7 +37,7 @@ public class RowSchemaTest {
 
         schema.addFields(newFields);
 
-        Assertions.assertEquals(schema.getSize(), 127);
+        Assertions.assertEquals(schema.getSize(), 128);
 
         Assertions.assertEquals(schema.getFields(), Set.of("field1", "field2", "field3", "field4", "field5"));
     }
