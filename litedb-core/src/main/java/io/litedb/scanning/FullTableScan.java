@@ -84,6 +84,7 @@ public class FullTableScan implements WritableScan {
 
     @Override
     public void insert(LiteRow row) throws IOException {
+        begin();
         while (currentSlotInPage < slotsPerPage) {
             if (!isDirtySlot()) {
                 insertIntoSlot(row, currentSlotInPage);;

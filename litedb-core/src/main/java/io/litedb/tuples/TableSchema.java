@@ -15,6 +15,11 @@ public class TableSchema {
         updateOffsets();
     }
 
+    public TableSchema() {
+        this.fields = new HashMap<>();
+        updateOffsets();
+    }
+
     private void updateOffsets() {
         this.offsets = new HashMap<>();
 
@@ -58,5 +63,9 @@ public class TableSchema {
 
     public Collection<String> getFields() {
         return fields.keySet();
+    }
+
+    public boolean hasField(String string) {
+        return this.fields.containsKey(string);
     }
 }

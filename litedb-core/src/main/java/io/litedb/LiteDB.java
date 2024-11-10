@@ -26,10 +26,10 @@ public class LiteDB
 
     public LiteDB(String dbDirectory) {
         this.storageEngine = new LiteStorageEngine(dbDirectory);
-        this.overseer = MetadataOverseer.getInstance(dbDirectory);
+        this.overseer = MetadataOverseer.getInstance(this.storageEngine);
     }
 
-    public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {
+    public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {        
         this.overseer.addTable(tableName, new TableSchema(fields));
         this.storageEngine.getFile(tableName + ".lt");
     }
@@ -64,7 +64,7 @@ public class LiteDB
         }
     }
 
-    public static void main( String[] args )
+    public static void main( String[] args ) throws IOException
     {
         Map<String, TupleDatumInfo> fields = new TreeMap<>();
         fields.put("roll_number", new IntegerInfo());
@@ -87,5 +87,7 @@ public class LiteDB
         ));
 
         db.scanTable("students");
+        db.scanTable("tables_meta");
+        db.scanTable("columns_meta");
     }
 }

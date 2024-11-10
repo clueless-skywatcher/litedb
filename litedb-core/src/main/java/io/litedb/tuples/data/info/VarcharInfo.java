@@ -14,4 +14,9 @@ public class VarcharInfo implements TupleDatumInfo {
         this.maxSize = b.toString().getBytes().length;
         this.size = Integer.BYTES + maxSize;
     }
+
+    @Override
+    public String getTypeString() {
+        return String.format("varchar.%d", maxSize);
+    }
 }
