@@ -2,6 +2,7 @@ package io.litedb;
 
 import java.io.IOException;
 import java.util.AbstractMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -9,6 +10,7 @@ import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.metadata.MetadataOverseer;
 import io.litedb.scanning.DBScan;
 import io.litedb.scanning.FullTableScan;
+import io.litedb.scanning.ProjectionScan;
 import io.litedb.scanning.WritableScan;
 import io.litedb.tuples.LiteRow;
 import io.litedb.tuples.TableSchema;
@@ -19,8 +21,7 @@ import io.litedb.tuples.data.info.IntegerInfo;
 import io.litedb.tuples.data.info.TupleDatumInfo;
 import io.litedb.tuples.data.info.VarcharInfo;
 
-public class LiteDB 
-{
+public class LiteDB {
     private LiteStorageEngine storageEngine;
     private MetadataOverseer overseer;
 
@@ -29,7 +30,7 @@ public class LiteDB
         this.overseer = MetadataOverseer.getInstance(this.storageEngine);
     }
 
-    public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {        
+    public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {
         this.overseer.addTable(tableName, new TableSchema(fields));
         this.storageEngine.getFile(tableName + ".lt");
     }
@@ -54,6 +55,23 @@ public class LiteDB
         }
     }
 
+    public void scanTable(String tableName, List<String> fields) {
+        try {
+            ProjectionScan newScan = new ProjectionScan(new FullTableScan(tableName, storageEngine, overseer), fields);
+            newScan.begin();
+            LiteRow currentRow;
+            int rowCount = 0;
+            while ((currentRow = newScan.readRow()) != null) {
+                System.out.println(currentRow);
+                rowCount++;
+                newScan.next();
+            }
+            System.out.println(String.format("%d rows fetched", rowCount));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void insertValues(String tableName, Map<String, TupleData<?>> values) {
         try {
             WritableScan scan = new FullTableScan(tableName, storageEngine, overseer);
@@ -64,8 +82,7 @@ public class LiteDB
         }
     }
 
-    public static void main( String[] args ) throws IOException
-    {
+    public static void main(String[] args) throws IOException {
         Map<String, TupleDatumInfo> fields = new TreeMap<>();
         fields.put("roll_number", new IntegerInfo());
         fields.put("name", new VarcharInfo(200));
@@ -74,20 +91,15 @@ public class LiteDB
         db.createTable("students", fields);
 
         db.insertValues("students", Map.ofEntries(
-            new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(1)),
-            new AbstractMap.SimpleEntry<>("name", new VarcharData("Somi", 200))
-        ));
+                new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(1)),
+                new AbstractMap.SimpleEntry<>("name", new VarcharData("Somi", 200))));
         db.insertValues("students", Map.ofEntries(
-            new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(2)),
-            new AbstractMap.SimpleEntry<>("name", new VarcharData("Epsi", 200))
-        ));
+                new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(2)),
+                new AbstractMap.SimpleEntry<>("name", new VarcharData("Epsi", 200))));
         db.insertValues("students", Map.ofEntries(
-            new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(3)),
-            new AbstractMap.SimpleEntry<>("name", new VarcharData("Shady", 200))
-        ));
+                new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(3)),
+                new AbstractMap.SimpleEntry<>("name", new VarcharData("Shady", 200))));
 
-        db.scanTable("students");
-        db.scanTable("tables_meta");
-        db.scanTable("columns_meta");
+        db.scanTable("columns_meta", List.of("column_name", "column_type"));
     }
 }
