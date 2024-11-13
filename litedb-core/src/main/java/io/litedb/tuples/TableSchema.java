@@ -32,16 +32,18 @@ public class TableSchema {
         }
     }
 
-    public void addField(String fieldName, TupleDatumInfo info) {
+    public TableSchema addField(String fieldName, TupleDatumInfo info) {
         this.fields.put(fieldName, info);
         updateOffsets();
+        return this;
     }
 
-    public void addFields(Map<String, TupleDatumInfo> fields) {
+    public TableSchema addFields(Map<String, TupleDatumInfo> fields) {
         for (Map.Entry<String, TupleDatumInfo> entry: fields.entrySet()) {
             this.fields.put(entry.getKey(), entry.getValue());
         }
         updateOffsets();
+        return this;
     }
 
     public TupleDatumInfo getFieldInfo(String fieldName) {

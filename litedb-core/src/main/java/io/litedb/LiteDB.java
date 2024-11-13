@@ -27,7 +27,7 @@ public class LiteDB {
 
     public LiteDB(String dbDirectory) {
         this.storageEngine = new LiteStorageEngine(dbDirectory);
-        this.overseer = MetadataOverseer.getInstance(this.storageEngine);
+        this.overseer = new MetadataOverseer(storageEngine);
     }
 
     public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {
@@ -100,6 +100,14 @@ public class LiteDB {
                 new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(3)),
                 new AbstractMap.SimpleEntry<>("name", new VarcharData("Shady", 200))));
 
-        db.scanTable("columns_meta", List.of("column_name", "column_type"));
+        db.scanTable("columns_meta");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        db.scanTable("tables_meta");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        db.scanTable("students");
     }
 }
