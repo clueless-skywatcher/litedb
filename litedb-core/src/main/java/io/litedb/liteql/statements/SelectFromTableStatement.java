@@ -1,13 +1,23 @@
 package io.litedb.liteql.statements;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import io.litedb.liteql.statements.results.LiteQLResult;
+import io.litedb.LiteDB;
+import io.litedb.liteql.statements.results.SelectFromTableResult;
+import io.litedb.planning.DBPlan;
+import io.litedb.planning.FullTablePlan;
+import io.litedb.planning.ProjectionPlan;
+import io.litedb.scanning.DBScan;
+import io.litedb.tuples.LiteRow;
+import io.litedb.tuples.TableSchema;
 import lombok.Getter;
 
 public class SelectFromTableStatement implements LiteQLStatement {
     private @Getter String tableName;
     private @Getter List<String> fields;
+    private @Getter SelectFromTableResult result = null; 
 
     public SelectFromTableStatement(String tableName, List<String> fields) {
         this.tableName = tableName;
@@ -15,13 +25,31 @@ public class SelectFromTableStatement implements LiteQLStatement {
     }
 
     @Override
-    public void execute() {
+    public void execute(LiteDB db) {
+        try {
+            TableSchema schema = db.getOverseer().getTableSchema(tableName);
 
-    }
+            DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer());
+            if (fields.size() == 0) {
+                fields = new ArrayList<>(schema.getFields());
+            }
+            plan = new ProjectionPlan(plan, fields);
+            DBScan scan = plan.start();
 
-    @Override
-    public LiteQLResult getResult() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getResult'");
+            SelectFromTableResult result = new SelectFromTableResult(fields);
+
+            LiteRow currentRow;
+            scan.begin();
+
+            while ((currentRow = scan.readRow()) != null) {
+                result.addRow(currentRow);
+                scan.next();
+            }
+
+            this.result = result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("");
+        }
     }
 }

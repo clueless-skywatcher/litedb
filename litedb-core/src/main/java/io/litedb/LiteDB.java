@@ -20,10 +20,11 @@ import io.litedb.tuples.data.VarcharData;
 import io.litedb.tuples.data.info.IntegerInfo;
 import io.litedb.tuples.data.info.TupleDatumInfo;
 import io.litedb.tuples.data.info.VarcharInfo;
+import lombok.Getter;
 
 public class LiteDB {
-    private LiteStorageEngine storageEngine;
-    private MetadataOverseer overseer;
+    private @Getter LiteStorageEngine storageEngine;
+    private @Getter MetadataOverseer overseer;
 
     public LiteDB(String dbDirectory) {
         this.storageEngine = new LiteStorageEngine(dbDirectory);
@@ -80,34 +81,5 @@ public class LiteDB {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        Map<String, TupleDatumInfo> fields = new TreeMap<>();
-        fields.put("roll_number", new IntegerInfo());
-        fields.put("name", new VarcharInfo(200));
-
-        LiteDB db = new LiteDB(".litedb");
-        db.createTable("students", fields);
-
-        db.insertValues("students", Map.ofEntries(
-                new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(1)),
-                new AbstractMap.SimpleEntry<>("name", new VarcharData("Somi", 200))));
-        db.insertValues("students", Map.ofEntries(
-                new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(2)),
-                new AbstractMap.SimpleEntry<>("name", new VarcharData("Epsi", 200))));
-        db.insertValues("students", Map.ofEntries(
-                new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(3)),
-                new AbstractMap.SimpleEntry<>("name", new VarcharData("Shady", 200))));
-
-        db.scanTable("columns_meta");
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
-        db.scanTable("tables_meta");
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
-        System.out.println("------------------------------");
-        db.scanTable("students");
     }
 }

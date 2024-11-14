@@ -17,5 +17,8 @@ public class LiteQLSelectParseTest {
         SelectFromTableStatement stmt2 = (SelectFromTableStatement) machine.parseStatement("select id,name from table1;");
         Assertions.assertEquals(stmt2.getTableName(), "table1");
         Assertions.assertIterableEquals(stmt2.getFields(), List.of("id", "name"));
+        SelectFromTableStatement stmt3 = (SelectFromTableStatement) machine.parseStatement("select * from table1");
+        Assertions.assertEquals(stmt3.getTableName(), "table1");
+        Assertions.assertIterableEquals(stmt3.getFields(), List.of());
     }
 }
