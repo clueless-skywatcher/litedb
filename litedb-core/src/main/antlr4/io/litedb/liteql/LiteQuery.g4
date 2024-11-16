@@ -15,6 +15,7 @@ dqlStatement
 
 ddlStatement
     : createTableQuery
+    | dropTableQuery
     ;
 
 selectQuery
@@ -22,7 +23,11 @@ selectQuery
     ;
 
 createTableQuery
-    : CREATE TABLE tableName=identifier '(' fieldDefs (',' fieldDefs) ')'
+    : CREATE TABLE tableName=identifier '(' fieldDefs (',' fieldDefs)* ')'
+    ;
+
+dropTableQuery
+    : DROP TABLE tableName=identifier
     ;
 
 fieldDefs
@@ -30,7 +35,7 @@ fieldDefs
     ;
 
 fieldType
-    : typeName=identifier ('(' maxLength=INTEGER ')')
+    : typeName=identifier ('(' maxLength=INTEGER ')')?
     ;
 
 projection
@@ -45,17 +50,15 @@ identifier
 fragment LETTERS: [a-zA-Z]+;
 fragment DIGITS: [0-9]+;
 
-BOOLEAN: 'boolean';
 CREATE: 'create';
+DROP: 'drop';
 FROM: 'from';
 IF: 'if';
 INSERT: 'insert';
-INT: 'int';
 INTO: 'into';
 SELECT: 'select';
 TABLE: 'table';
 VALUES: 'values';
-VARCHAR: 'varchar';
 WITH: 'with';
 
 EQ  : '=';

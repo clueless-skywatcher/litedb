@@ -3,8 +3,6 @@ package io.litedb.metadata;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.metadata.tables.ColumnsMetaMetaTable;
@@ -15,10 +13,7 @@ import io.litedb.tuples.LiteRow;
 import io.litedb.tuples.TableSchema;
 import io.litedb.tuples.data.IntegerData;
 import io.litedb.tuples.data.VarcharData;
-import io.litedb.tuples.data.info.BooleanInfo;
-import io.litedb.tuples.data.info.IntegerInfo;
 import io.litedb.tuples.data.info.TupleDatumInfo;
-import io.litedb.tuples.data.info.VarcharInfo;
 
 public class MetadataOverseer {
     private LiteStorageEngine storageEngine;
@@ -112,29 +107,7 @@ public class MetadataOverseer {
             if (currentRow.getData("table_name").toString().equals(tableName)) {
                 String columnName = currentRow.getData("column_name").toString();
                 String columnType = currentRow.getData("column_type").toString();
-                TupleDatumInfo info = null;
-                switch (columnType.toLowerCase()) {
-                    case "integer":
-                        info = new IntegerInfo();
-                        break;
-                    case "boolean":
-                        info = new BooleanInfo();
-                        break;
-                    default:
-                        if (columnType.matches("varchar\\([0-9]+\\)")) {
-                            Pattern pattern = Pattern.compile("-?\\d+");
-                            Matcher matcher = pattern.matcher(columnType);
-                            int charLength;
-                            while (matcher.find()) {
-                                charLength = Integer.parseInt(matcher.group());
-                                info = new VarcharInfo(charLength);
-                                break;
-                            }
-                        } else {
-                            throw new RuntimeException("Invalid columnType read from file: " + columnType);
-                        }
-                        break;
-                }
+                TupleDatumInfo info = TupleDatumInfo.inferTypeFromString(columnType);
 
                 schema.addField(columnName, info);
             }

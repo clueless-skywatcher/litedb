@@ -1,20 +1,25 @@
 package io.litedb.liteql;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.litedb.liteql.LiteQueryParser.CreateTableQueryContext;
 import io.litedb.liteql.LiteQueryParser.DdlStatementContext;
 import io.litedb.liteql.LiteQueryParser.DqlStatementContext;
+import io.litedb.liteql.LiteQueryParser.FieldDefsContext;
 import io.litedb.liteql.LiteQueryParser.ProjectionContext;
 import io.litedb.liteql.LiteQueryParser.QueryContext;
 import io.litedb.liteql.LiteQueryParser.RootContext;
 import io.litedb.liteql.LiteQueryParser.SelectQueryContext;
 import io.litedb.liteql.LiteQueryParser.StatementContext;
+import io.litedb.liteql.statements.CreateTableStatement;
 import io.litedb.liteql.statements.SelectFromTableStatement;
+import io.litedb.tuples.data.info.TupleDatumInfo;
 
 public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
-    
+
     @Override
     public List<String> visitProjection(ProjectionContext ctx) {
         if (ctx.ASTERISK() != null) {
@@ -39,13 +44,24 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
 
     @Override
     public Object visitCreateTableQuery(CreateTableQueryContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitCreateTableQuery(ctx);
+        String tableName = ctx.identifier().getText();
+        Map<String, TupleDatumInfo> fields = new HashMap<>();
+        for (FieldDefsContext field : ctx.fieldDefs()) {
+            String fieldName = field.identifier().getText();
+            TupleDatumInfo fieldType = TupleDatumInfo.inferTypeFromString(field.fieldType().getText());
+            fields.put(fieldName, fieldType);
+        }
+
+        return new CreateTableStatement(tableName, fields);
     }
 
     @Override
     public Object visitDdlStatement(DdlStatementContext ctx) {
-        return visitCreateTableQuery(ctx.createTableQuery());
+        if (ctx.dropTableQuery() != null) {
+            return visitDropTableQuery(ctx.dropTableQuery());
+        } else {
+            return visitCreateTableQuery(ctx.createTableQuery());
+        }
     }
 
     @Override
@@ -70,5 +86,5 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     @Override
     public Object visitStatement(StatementContext ctx) {
         return visitQuery(ctx.query());
-    }    
+    }
 }

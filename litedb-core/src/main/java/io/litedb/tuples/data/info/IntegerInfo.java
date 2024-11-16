@@ -7,6 +7,10 @@ public class IntegerInfo implements TupleDatumInfo {
 
     @Override
     public String getTypeString() {
-        return "integer";
+        return "int";
+    }
+
+    public boolean equals(Object other) {
+        return other instanceof IntegerInfo;
     }
 }

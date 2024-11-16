@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import io.litedb.liteql.LiteQLParsingMachine;
+import io.litedb.liteql.statements.CreateTableStatement;
 import io.litedb.liteql.statements.LiteQLStatement;
+import io.litedb.liteql.statements.results.CreateTableResult;
 import io.litedb.tuples.data.IntegerData;
 import io.litedb.tuples.data.VarcharData;
 import io.litedb.tuples.data.info.IntegerInfo;
@@ -18,10 +20,14 @@ public class LiteDBMain {
         Map<String, TupleDatumInfo> fields = new TreeMap<>();
         fields.put("roll_number", new IntegerInfo());
         fields.put("name", new VarcharInfo(200));
-
+        LiteQLParsingMachine machine = new LiteQLParsingMachine();
+        
         LiteDB db = new LiteDB(".litedb");
-        db.createTable("students", fields);
-
+        CreateTableStatement stmt = (CreateTableStatement) machine.parseStatement("create table students (roll_number int, name varchar(200));");
+        stmt.execute(db);
+        System.out.println(stmt.getResult().toString());
+        System.out.println();
+        
         db.insertValues("students", Map.ofEntries(
                 new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(1)),
                 new AbstractMap.SimpleEntry<>("name", new VarcharData("Somi", 200))));
@@ -32,7 +38,6 @@ public class LiteDBMain {
                 new AbstractMap.SimpleEntry<>("roll_number", new IntegerData(3)),
                 new AbstractMap.SimpleEntry<>("name", new VarcharData("Shady", 200))));
 
-        LiteQLParsingMachine machine = new LiteQLParsingMachine();
         LiteQLStatement statement = machine.parseStatement("select name from students;");
         statement.execute(db);
         System.out.println(statement.getResult().toString());

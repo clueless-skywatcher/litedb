@@ -27,6 +27,7 @@ public class SelectFromTableStatement implements LiteQLStatement {
     @Override
     public void execute(LiteDB db) {
         try {
+            long timeTaken = System.currentTimeMillis();
             TableSchema schema = db.getOverseer().getTableSchema(tableName);
 
             DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer());
@@ -36,7 +37,7 @@ public class SelectFromTableStatement implements LiteQLStatement {
             plan = new ProjectionPlan(plan, fields);
             DBScan scan = plan.start();
 
-            SelectFromTableResult result = new SelectFromTableResult(fields);
+            SelectFromTableResult result = new SelectFromTableResult(tableName, fields);
 
             LiteRow currentRow;
             scan.begin();
@@ -45,7 +46,7 @@ public class SelectFromTableStatement implements LiteQLStatement {
                 result.addRow(currentRow);
                 scan.next();
             }
-
+            result.setTimeTaken(System.currentTimeMillis() - timeTaken);
             this.result = result;
         } catch (IOException e) {
             e.printStackTrace();

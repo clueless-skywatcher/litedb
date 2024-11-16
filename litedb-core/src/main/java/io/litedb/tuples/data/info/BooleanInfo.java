@@ -9,4 +9,8 @@ public class BooleanInfo implements TupleDatumInfo {
     public String getTypeString() {
         return "boolean";
     }
+
+    public boolean equals(Object other) {
+        return other instanceof BooleanInfo;
+    }
 }

@@ -1,10 +1,8 @@
 package io.litedb;
 
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.metadata.MetadataOverseer;
@@ -14,12 +12,8 @@ import io.litedb.scanning.ProjectionScan;
 import io.litedb.scanning.WritableScan;
 import io.litedb.tuples.LiteRow;
 import io.litedb.tuples.TableSchema;
-import io.litedb.tuples.data.IntegerData;
 import io.litedb.tuples.data.TupleData;
-import io.litedb.tuples.data.VarcharData;
-import io.litedb.tuples.data.info.IntegerInfo;
 import io.litedb.tuples.data.info.TupleDatumInfo;
-import io.litedb.tuples.data.info.VarcharInfo;
 import lombok.Getter;
 
 public class LiteDB {

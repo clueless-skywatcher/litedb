@@ -19,4 +19,11 @@ public class VarcharInfo implements TupleDatumInfo {
     public String getTypeString() {
         return String.format("varchar(%d)", maxSize);
     }
+
+    public boolean equals(Object other) {
+        if (other instanceof VarcharInfo) {
+            return this.maxSize == ((VarcharInfo) other).maxSize;
+        }
+        return false;
+    }
 }
