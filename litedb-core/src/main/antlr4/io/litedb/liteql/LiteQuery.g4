@@ -7,6 +7,7 @@ statement: query SEMICOLON;
 query
     : dqlStatement 
     | ddlStatement
+    | dmlStatement
     ;
 
 dqlStatement
@@ -16,6 +17,10 @@ dqlStatement
 ddlStatement
     : createTableQuery
     | dropTableQuery
+    ;
+
+dmlStatement
+    : insertQuery
     ;
 
 selectQuery
@@ -28,6 +33,22 @@ createTableQuery
 
 dropTableQuery
     : DROP TABLE tableName=identifier
+    ;
+
+insertQuery
+    : INSERT INTO tableName=identifier 
+        '(' fieldNames ')'
+        VALUES '(' value (',' value)* ')'
+    ;
+
+value
+    : INTEGER
+    | STRING
+    | BOOLEAN_VALUE
+    ;
+
+fieldNames
+    : identifier (',' identifier)*
     ;
 
 fieldDefs
@@ -49,6 +70,8 @@ identifier
 
 fragment LETTERS: [a-zA-Z]+;
 fragment DIGITS: [0-9]+;
+
+BOOLEAN_VALUE: 'true' | 'false';
 
 CREATE: 'create';
 DROP: 'drop';

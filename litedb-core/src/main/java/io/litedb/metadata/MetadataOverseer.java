@@ -49,8 +49,7 @@ public class MetadataOverseer {
             String currentColumnName = currentRow.getData("column_name").toString();
             String currentTableName = currentRow.getData("table_name").toString();
             if (currentTableName.equals(tableName) && rowSchema.hasField(currentColumnName)) {
-                throw new RuntimeException(
-                        String.format("Column %s already exists for table %s", currentColumnName, tableName));
+                return;
             }
             columnsMetaScan.next();
         }
@@ -78,7 +77,7 @@ public class MetadataOverseer {
 
         while ((currentRow = tablesMetaScan.readRow()) != null) {
             if (currentRow.getData("table_name").toString().equals(tableName)) {
-                throw new RuntimeException(String.format("Table %s already exists", tableName));
+                return;
             }
             tablesMetaScan.next();
         }
