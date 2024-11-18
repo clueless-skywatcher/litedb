@@ -11,6 +11,7 @@ import io.litedb.liteql.LiteQueryParser.DmlStatementContext;
 import io.litedb.liteql.LiteQueryParser.DqlStatementContext;
 import io.litedb.liteql.LiteQueryParser.FieldDefsContext;
 import io.litedb.liteql.LiteQueryParser.FieldNamesContext;
+import io.litedb.liteql.LiteQueryParser.FilterContext;
 import io.litedb.liteql.LiteQueryParser.InsertQueryContext;
 import io.litedb.liteql.LiteQueryParser.ProjectionContext;
 import io.litedb.liteql.LiteQueryParser.QueryContext;
@@ -23,7 +24,6 @@ import io.litedb.liteql.statements.SelectFromTableStatement;
 import io.litedb.tuples.data.info.TupleDatumInfo;
 
 public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
-
     @Override
     public List<String> visitProjection(ProjectionContext ctx) {
         if (ctx.ASTERISK() != null) {
@@ -66,7 +66,35 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     public SelectFromTableStatement visitSelectQuery(SelectQueryContext ctx) {
         List<String> projection = visitProjection(ctx.projection());
         String tableName = ctx.tableName.getText();
+
+        if (ctx.filter() != null) {
+            List<QueryPredicate> predicates = visitFilter(ctx.filter());
+            return new SelectFromTableStatement(tableName, projection, predicates);
+        }
+
         return new SelectFromTableStatement(tableName, projection);
+    }
+
+    @Override
+    public List<QueryPredicate> visitFilter(FilterContext ctx) {
+        List<QueryPredicate> predicates = new ArrayList<>();
+
+        for (int i = 0; i < ctx.predicate().size(); i++) {
+            String fieldName = ctx.predicate(i).fieldName.getText();
+            Object value;
+
+            if (ctx.predicate(i).value().INTEGER() != null) {
+                value = Integer.parseInt(ctx.predicate(i).value().getText());
+            } else if (ctx.predicate(i).value().BOOLEAN_VALUE() != null) {
+                value = Boolean.parseBoolean(ctx.predicate(i).value().getText());
+            } else {
+                value = ctx.predicate(i).value().getText();
+            }
+
+            predicates.add(new QueryPredicate(fieldName, value));
+        }
+
+        return predicates;
     }
 
     @Override

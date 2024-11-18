@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import io.litedb.tuples.LiteRow;
+import io.litedb.tuples.TableSchema;
 
 public class ProjectionScan implements DBScan {
     private DBScan scan;
@@ -36,6 +37,11 @@ public class ProjectionScan implements DBScan {
         }
 
         return row;
+    }
+
+    @Override
+    public TableSchema getTableSchema() {
+        return scan.getTableSchema();
     }
 
 }

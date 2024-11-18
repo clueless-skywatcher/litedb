@@ -24,7 +24,15 @@ dmlStatement
     ;
 
 selectQuery
-    : SELECT projection FROM tableName=identifier
+    : SELECT projection FROM tableName=identifier filter?
+    ;
+
+filter
+    : WHERE predicate (AND predicate)?
+    ;
+
+predicate
+    : fieldName=identifier '=' value
     ;
 
 createTableQuery
@@ -73,6 +81,7 @@ fragment DIGITS: [0-9]+;
 
 BOOLEAN_VALUE: 'true' | 'false';
 
+AND: 'and';
 CREATE: 'create';
 DROP: 'drop';
 FROM: 'from';
@@ -82,6 +91,7 @@ INTO: 'into';
 SELECT: 'select';
 TABLE: 'table';
 VALUES: 'values';
+WHERE: 'where';
 WITH: 'with';
 
 EQ  : '=';

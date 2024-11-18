@@ -20,7 +20,7 @@ public class FullTableScan implements WritableScan {
     private int currentBlock;
 
     private LiteFile tableFile;
-    private TableSchema tableSchema;
+    private @Getter TableSchema tableSchema;
 
     private int slotsPerPage;
 
