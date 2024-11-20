@@ -61,6 +61,26 @@ You can also retrieve table metadata.
     4, id, int, students
     ```
 
+## Setup
+-   Clone this repository
+    ```
+    git clone https://github.com/clueless-skywatcher/litedb.git
+    ```
+-   Navigate to litedb folder
+    ```
+    cd litedb
+    ```
+-   Run Maven build
+    ```
+    mvn clean install -f litedb-core/pom.xml
+    ```
+-   Run the JAR
+    ```
+    java -jar litedb-core/target/litedb-0.0.1.jar
+    ```
+
+Feel free to play around with the `sample.sql` file provided.
+
 ## Future Plans:
 - Implement buffer manager
 - Implement transactions and ACID compliance
