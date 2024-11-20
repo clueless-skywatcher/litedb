@@ -12,4 +12,6 @@ public interface WritableScan extends DBScan {
     public void insert(LiteRow row) throws IOException;
     public void update(Map<String, TupleData<?>> data) throws IOException;
     public void update(Map<String, TupleData<?>> data, List<QueryPredicate> predicate) throws IOException;
+    public void delete() throws IOException;
+    public void delete(List<QueryPredicate> predicates) throws IOException;
 }

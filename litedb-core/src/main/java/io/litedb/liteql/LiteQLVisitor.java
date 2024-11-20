@@ -7,6 +7,7 @@ import java.util.Map;
 
 import io.litedb.liteql.LiteQueryParser.CreateTableQueryContext;
 import io.litedb.liteql.LiteQueryParser.DdlStatementContext;
+import io.litedb.liteql.LiteQueryParser.DeleteQueryContext;
 import io.litedb.liteql.LiteQueryParser.DmlStatementContext;
 import io.litedb.liteql.LiteQueryParser.DqlStatementContext;
 import io.litedb.liteql.LiteQueryParser.FieldDefsContext;
@@ -20,6 +21,7 @@ import io.litedb.liteql.LiteQueryParser.SelectQueryContext;
 import io.litedb.liteql.LiteQueryParser.StatementContext;
 import io.litedb.liteql.LiteQueryParser.UpdateQueryContext;
 import io.litedb.liteql.statements.CreateTableStatement;
+import io.litedb.liteql.statements.DeleteFromTableStatement;
 import io.litedb.liteql.statements.InsertIntoTableStatement;
 import io.litedb.liteql.statements.SelectFromTableStatement;
 import io.litedb.liteql.statements.UpdateTableStatement;
@@ -45,6 +47,8 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     public Object visitDmlStatement(DmlStatementContext ctx) {
         if (ctx.updateQuery() != null) {
             return visitUpdateQuery(ctx.updateQuery());
+        } else if (ctx.deleteQuery() != null) {
+            return visitDeleteQuery(ctx.deleteQuery());
         }
         return visitInsertQuery(ctx.insertQuery());
     }
@@ -52,9 +56,9 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     @Override
     public Object visitInsertQuery(InsertQueryContext ctx) {
         String tableName = ctx.tableName.getText();
-        
+
         List<String> fields = visitFieldNames(ctx.fieldNames());
-    
+
         List<String> row = new ArrayList<>();
 
         for (int i = 0; i < ctx.value().size(); i++) {
@@ -65,6 +69,18 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
             row.add(val);
         }
         return new InsertIntoTableStatement(tableName, fields, row);
+    }
+
+    @Override
+    public Object visitDeleteQuery(DeleteQueryContext ctx) {
+        String tableName = ctx.tableName.getText();
+
+        if (ctx.filter() != null) {
+            List<QueryPredicate> predicates = visitFilter(ctx.filter());
+            return new DeleteFromTableStatement(tableName, predicates);
+        }
+
+        return new DeleteFromTableStatement(tableName);
     }
 
     @Override
@@ -179,5 +195,5 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
         }
 
         return new UpdateTableStatement(tableName, updateColumns);
-    }    
+    }
 }

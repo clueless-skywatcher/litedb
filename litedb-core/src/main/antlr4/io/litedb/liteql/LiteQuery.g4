@@ -22,6 +22,7 @@ ddlStatement
 dmlStatement
     : insertQuery
     | updateQuery
+    | deleteQuery
     ;
 
 selectQuery
@@ -53,6 +54,10 @@ insertQuery
 updateQuery
     : UPDATE tableName=identifier SET updateColumn (',' updateColumn)*
         filter?
+    ;
+
+deleteQuery
+    : DELETE FROM tableName=identifier filter?
     ;
 
 updateColumn
@@ -93,6 +98,7 @@ BOOLEAN_VALUE: 'true' | 'false';
 
 AND: 'and';
 CREATE: 'create';
+DELETE: 'delete';
 DROP: 'drop';
 FROM: 'from';
 IF: 'if';

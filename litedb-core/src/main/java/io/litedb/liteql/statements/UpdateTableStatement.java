@@ -9,7 +9,6 @@ import io.litedb.liteql.QueryPredicate;
 import io.litedb.liteql.statements.results.LiteQLResult;
 import io.litedb.liteql.statements.results.UpdateTableResult;
 import io.litedb.planning.DBPlan;
-import io.litedb.planning.FilteringPlan;
 import io.litedb.planning.FullTablePlan;
 import io.litedb.scanning.WritableScan;
 import io.litedb.tuples.TableSchema;

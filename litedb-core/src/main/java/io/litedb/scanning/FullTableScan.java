@@ -28,7 +28,8 @@ public class FullTableScan implements WritableScan {
 
     private int slotsPerPage;
 
-    public FullTableScan(String tableName, LiteStorageEngine engine, MetadataOverseer metadataOverseer) throws IOException {
+    public FullTableScan(String tableName, LiteStorageEngine engine, MetadataOverseer metadataOverseer)
+            throws IOException {
         this.tableName = tableName;
         this.storageEngine = engine;
 
@@ -58,11 +59,10 @@ public class FullTableScan implements WritableScan {
             return null;
         }
 
-        for (String field: this.tableSchema.getFields()) {
+        for (String field : this.tableSchema.getFields()) {
             int fieldPosition = currentSlotInPage * tableSchema.getSize() + 1 + this.tableSchema.getOffset(field);
-            row.setData(field, 
-                currentPage.getData(fieldPosition, this.tableSchema.getFieldInfo(field))
-            );
+            row.setData(field,
+                    currentPage.getData(fieldPosition, this.tableSchema.getFieldInfo(field)));
         }
         return row;
     }
@@ -111,7 +111,7 @@ public class FullTableScan implements WritableScan {
 
         currentPage.setByte(slotPosition, (byte) 1);
 
-        for (String field: row.getFields()) {
+        for (String field : row.getFields()) {
             currentPage.setData(slotPosition + 1 + tableSchema.getOffset(field), row.getData(field));
         }
 
@@ -120,18 +120,13 @@ public class FullTableScan implements WritableScan {
 
     @Override
     public void update(Map<String, TupleData<?>> data) throws IOException {
-        begin();
-        while (readRow() != null) {
-            updateSlot(currentSlotInPage, data);
-            next();
-        }
-        this.tableFile.writeBlock(currentBlock, currentPage);
+        update(data, List.of());
     }
 
     private void updateSlot(int slot, Map<String, TupleData<?>> data) throws IOException {
         int slotPosition = slot * tableSchema.getSize();
 
-        for (String field: data.keySet()) {
+        for (String field : data.keySet()) {
             currentPage.setData(slotPosition + 1 + tableSchema.getOffset(field), data.get(field));
         }
     }
@@ -142,7 +137,7 @@ public class FullTableScan implements WritableScan {
         LiteRow currentRow;
         while ((currentRow = readRow()) != null) {
             boolean allSatisfied = true;
-            for (QueryPredicate predicate: predicates) {
+            for (QueryPredicate predicate : predicates) {
                 allSatisfied = allSatisfied && predicate.rowSatisfies(currentRow, tableSchema);
             }
             if (allSatisfied) {
@@ -151,5 +146,32 @@ public class FullTableScan implements WritableScan {
             next();
         }
         this.tableFile.writeBlock(currentBlock, currentPage);
+    }
+
+    @Override
+    public void delete() throws IOException {
+        delete(List.of());
+    }
+
+    @Override
+    public void delete(List<QueryPredicate> predicates) throws IOException {
+        begin();
+        LiteRow currentRow;
+        while ((currentRow = readRow()) != null) {
+            boolean allSatisfied = true;
+            for (QueryPredicate predicate : predicates) {
+                allSatisfied = allSatisfied && predicate.rowSatisfies(currentRow, tableSchema);
+            }
+            if (allSatisfied) {
+                deleteSlot(currentSlotInPage);
+            }
+            next();
+        }
+        this.tableFile.writeBlock(currentBlock, currentPage);
+    }
+
+    private void deleteSlot(int slot) {
+        int slotPosition = slot * tableSchema.getSize();
+        currentPage.setByte(slotPosition, (byte) 0);
     }
 }

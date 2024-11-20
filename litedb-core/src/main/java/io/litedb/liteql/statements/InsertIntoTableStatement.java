@@ -1,5 +1,6 @@
 package io.litedb.liteql.statements;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,9 @@ import java.util.Map;
 import io.litedb.LiteDB;
 import io.litedb.liteql.statements.results.InsertIntoTableResult;
 import io.litedb.liteql.statements.results.LiteQLResult;
+import io.litedb.scanning.FullTableScan;
+import io.litedb.scanning.WritableScan;
+import io.litedb.tuples.LiteRow;
 import io.litedb.tuples.TableSchema;
 import io.litedb.tuples.data.IntegerData;
 import io.litedb.tuples.data.TupleData;
@@ -42,7 +46,13 @@ public class InsertIntoTableStatement implements LiteQLStatement {
                     data.put(fieldName, new VarcharData(row.get(f), ((VarcharInfo) info).getMaxSize()));
                 } 
             }
-            db.insertValues(tableName, data);
+            try {
+                WritableScan scan = new FullTableScan(tableName, db.getStorageEngine(), db.getOverseer());
+                scan.begin();
+                scan.insert(new LiteRow(data));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.result = new InsertIntoTableResult(tableName);
         } catch (Exception e) {
             throw new RuntimeException("Failed to insert data: " + e.getMessage());
