@@ -21,6 +21,7 @@ ddlStatement
 
 dmlStatement
     : insertQuery
+    | updateQuery
     ;
 
 selectQuery
@@ -47,6 +48,15 @@ insertQuery
     : INSERT INTO tableName=identifier 
         '(' fieldNames ')'
         VALUES '(' value (',' value)* ')'
+    ;
+
+updateQuery
+    : UPDATE tableName=identifier SET updateColumn (',' updateColumn)*
+        filter?
+    ;
+
+updateColumn
+    : fieldName=identifier '=' value
     ;
 
 value
@@ -89,7 +99,9 @@ IF: 'if';
 INSERT: 'insert';
 INTO: 'into';
 SELECT: 'select';
+SET: 'set';
 TABLE: 'table';
+UPDATE: 'update';
 VALUES: 'values';
 WHERE: 'where';
 WITH: 'with';

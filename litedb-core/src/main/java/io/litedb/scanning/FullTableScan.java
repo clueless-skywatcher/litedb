@@ -1,13 +1,17 @@
 package io.litedb.scanning;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import io.litedb.filesystem.LiteFile;
 import io.litedb.filesystem.LitePage;
 import io.litedb.filesystem.LiteStorageEngine;
+import io.litedb.liteql.QueryPredicate;
 import io.litedb.metadata.MetadataOverseer;
 import io.litedb.tuples.LiteRow;
 import io.litedb.tuples.TableSchema;
+import io.litedb.tuples.data.TupleData;
 import lombok.Getter;
 
 public class FullTableScan implements WritableScan {
@@ -87,7 +91,7 @@ public class FullTableScan implements WritableScan {
         begin();
         while (currentSlotInPage < slotsPerPage) {
             if (!isDirtySlot()) {
-                insertIntoSlot(row, currentSlotInPage);;
+                insertIntoSlot(row, currentSlotInPage);
                 return;
             } else {
                 currentSlotInPage++;
@@ -111,6 +115,41 @@ public class FullTableScan implements WritableScan {
             currentPage.setData(slotPosition + 1 + tableSchema.getOffset(field), row.getData(field));
         }
 
+        this.tableFile.writeBlock(currentBlock, currentPage);
+    }
+
+    @Override
+    public void update(Map<String, TupleData<?>> data) throws IOException {
+        begin();
+        while (readRow() != null) {
+            updateSlot(currentSlotInPage, data);
+            next();
+        }
+        this.tableFile.writeBlock(currentBlock, currentPage);
+    }
+
+    private void updateSlot(int slot, Map<String, TupleData<?>> data) throws IOException {
+        int slotPosition = slot * tableSchema.getSize();
+
+        for (String field: data.keySet()) {
+            currentPage.setData(slotPosition + 1 + tableSchema.getOffset(field), data.get(field));
+        }
+    }
+
+    @Override
+    public void update(Map<String, TupleData<?>> data, List<QueryPredicate> predicates) throws IOException {
+        begin();
+        LiteRow currentRow;
+        while ((currentRow = readRow()) != null) {
+            boolean allSatisfied = true;
+            for (QueryPredicate predicate: predicates) {
+                allSatisfied = allSatisfied && predicate.rowSatisfies(currentRow, tableSchema);
+            }
+            if (allSatisfied) {
+                updateSlot(currentSlotInPage, data);
+            }
+            next();
+        }
         this.tableFile.writeBlock(currentBlock, currentPage);
     }
 }

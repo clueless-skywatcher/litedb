@@ -2,10 +2,12 @@ package io.litedb.scanning;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import io.litedb.liteql.QueryPredicate;
 import io.litedb.tuples.LiteRow;
 import io.litedb.tuples.TableSchema;
+import io.litedb.tuples.data.TupleData;
 
 public class FilteringScan implements DBScan {
     private DBScan scan;

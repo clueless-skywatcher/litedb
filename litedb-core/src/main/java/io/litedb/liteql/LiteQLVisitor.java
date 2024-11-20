@@ -18,9 +18,11 @@ import io.litedb.liteql.LiteQueryParser.QueryContext;
 import io.litedb.liteql.LiteQueryParser.RootContext;
 import io.litedb.liteql.LiteQueryParser.SelectQueryContext;
 import io.litedb.liteql.LiteQueryParser.StatementContext;
+import io.litedb.liteql.LiteQueryParser.UpdateQueryContext;
 import io.litedb.liteql.statements.CreateTableStatement;
 import io.litedb.liteql.statements.InsertIntoTableStatement;
 import io.litedb.liteql.statements.SelectFromTableStatement;
+import io.litedb.liteql.statements.UpdateTableStatement;
 import io.litedb.tuples.data.info.TupleDatumInfo;
 
 public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
@@ -41,6 +43,9 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
 
     @Override
     public Object visitDmlStatement(DmlStatementContext ctx) {
+        if (ctx.updateQuery() != null) {
+            return visitUpdateQuery(ctx.updateQuery());
+        }
         return visitInsertQuery(ctx.insertQuery());
     }
 
@@ -154,5 +159,25 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
         }
 
         return fields;
+    }
+
+    @Override
+    public UpdateTableStatement visitUpdateQuery(UpdateQueryContext ctx) {
+        String tableName = ctx.tableName.getText();
+
+        Map<String, String> updateColumns = new HashMap<>();
+
+        for (int i = 0; i < ctx.updateColumn().size(); i++) {
+            String fieldName = ctx.updateColumn(i).fieldName.getText();
+            String value = ctx.updateColumn(i).value().getText();
+            updateColumns.put(fieldName, value);
+        }
+
+        if (ctx.filter() != null) {
+            List<QueryPredicate> predicates = visitFilter(ctx.filter());
+            return new UpdateTableStatement(tableName, updateColumns, predicates);
+        }
+
+        return new UpdateTableStatement(tableName, updateColumns);
     }    
 }
