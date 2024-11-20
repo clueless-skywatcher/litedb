@@ -9,9 +9,11 @@ import lombok.Setter;
 public class UpdateTableResult implements LiteQLResult {
     private @Getter @Setter long timeTaken;
     private String tableName;
+    private int rowsUpdated;
 
-    public UpdateTableResult(String tableName) {
+    public UpdateTableResult(String tableName, int rowsUpdated) {
         this.tableName = tableName;
+        this.rowsUpdated = rowsUpdated;
     }
 
     @Override
@@ -20,6 +22,6 @@ public class UpdateTableResult implements LiteQLResult {
     }
 
     public String toString() {
-        return String.format("UPDATE %s completed in %d ms", tableName, timeTaken);
+        return String.format("UPDATE %s: %d rows affected in %d ms", tableName, rowsUpdated, timeTaken);
     }
 }

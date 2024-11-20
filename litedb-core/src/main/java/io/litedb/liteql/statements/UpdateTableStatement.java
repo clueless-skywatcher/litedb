@@ -70,15 +70,15 @@ public class UpdateTableStatement implements LiteQLStatement {
             DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer());
             WritableScan scan = (WritableScan) plan.start();
             
+            int rowsUpdated = 0;
+
             if (predicates != null) {
-                if (predicates.size() > 0) {
-                    scan.update(data, predicates);
-                }
+                rowsUpdated = scan.update(data, predicates);
             } else {
-                scan.update(data);
+                rowsUpdated = scan.update(data);
             }  
             
-            this.result = new UpdateTableResult(tableName);
+            this.result = new UpdateTableResult(tableName, rowsUpdated);
         } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }

@@ -8,7 +8,6 @@ import io.litedb.LiteDB;
 import io.litedb.liteql.QueryPredicate;
 import io.litedb.liteql.statements.results.DeleteFromTableResult;
 import io.litedb.liteql.statements.results.LiteQLResult;
-import io.litedb.liteql.statements.results.UpdateTableResult;
 import io.litedb.planning.DBPlan;
 import io.litedb.planning.FullTablePlan;
 import io.litedb.scanning.WritableScan;
@@ -33,15 +32,15 @@ public class DeleteFromTableStatement implements LiteQLStatement {
             DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer());
             WritableScan scan = (WritableScan) plan.start();
 
+            int rowsDeleted = 0;
+
             if (predicates != null) {
-                if (predicates.size() > 0) {
-                    scan.delete(predicates);
-                }
+                rowsDeleted = scan.delete(predicates);
             } else {
-                scan.delete();
+                rowsDeleted = scan.delete();
             }
 
-            this.result = new DeleteFromTableResult(tableName);
+            this.result = new DeleteFromTableResult(tableName, rowsDeleted);
         } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }

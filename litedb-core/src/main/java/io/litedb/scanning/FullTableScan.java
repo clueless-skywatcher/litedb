@@ -119,8 +119,8 @@ public class FullTableScan implements WritableScan {
     }
 
     @Override
-    public void update(Map<String, TupleData<?>> data) throws IOException {
-        update(data, List.of());
+    public int update(Map<String, TupleData<?>> data) throws IOException {
+        return update(data, List.of());
     }
 
     private void updateSlot(int slot, Map<String, TupleData<?>> data) throws IOException {
@@ -132,9 +132,10 @@ public class FullTableScan implements WritableScan {
     }
 
     @Override
-    public void update(Map<String, TupleData<?>> data, List<QueryPredicate> predicates) throws IOException {
+    public int update(Map<String, TupleData<?>> data, List<QueryPredicate> predicates) throws IOException {
         begin();
         LiteRow currentRow;
+        int rowsUpdated = 0;
         while ((currentRow = readRow()) != null) {
             boolean allSatisfied = true;
             for (QueryPredicate predicate : predicates) {
@@ -142,21 +143,24 @@ public class FullTableScan implements WritableScan {
             }
             if (allSatisfied) {
                 updateSlot(currentSlotInPage, data);
+                rowsUpdated++;
             }
             next();
         }
         this.tableFile.writeBlock(currentBlock, currentPage);
+        return rowsUpdated;
     }
 
     @Override
-    public void delete() throws IOException {
-        delete(List.of());
+    public int delete() throws IOException {
+        return delete(List.of());
     }
 
     @Override
-    public void delete(List<QueryPredicate> predicates) throws IOException {
+    public int delete(List<QueryPredicate> predicates) throws IOException {
         begin();
         LiteRow currentRow;
+        int rowsDeleted = 0;
         while ((currentRow = readRow()) != null) {
             boolean allSatisfied = true;
             for (QueryPredicate predicate : predicates) {
@@ -164,10 +168,12 @@ public class FullTableScan implements WritableScan {
             }
             if (allSatisfied) {
                 deleteSlot(currentSlotInPage);
+                rowsDeleted++;
             }
             next();
         }
         this.tableFile.writeBlock(currentBlock, currentPage);
+        return rowsDeleted;
     }
 
     private void deleteSlot(int slot) {
