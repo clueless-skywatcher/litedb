@@ -53,7 +53,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>io.litedb.LiteDB</mainClass>
+									<mainClass>io.litedb.LiteDBMain</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>
