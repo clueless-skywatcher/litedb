@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.litedb.buffer.LiteBufferManager;
 import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.metadata.tables.ColumnsMetaMetaTable;
 import io.litedb.metadata.tables.TablesMetaMetaTable;
@@ -17,10 +18,12 @@ import io.litedb.tuples.data.info.TupleDatumInfo;
 
 public class MetadataOverseer {
     private LiteStorageEngine storageEngine;
+    private LiteBufferManager bufferManager;
     private Map<String, TableSchema> schemas = new HashMap<>();
 
-    public MetadataOverseer(LiteStorageEngine storageEngine) {
+    public MetadataOverseer(LiteStorageEngine storageEngine, LiteBufferManager bufferManager) {
         this.storageEngine = storageEngine;
+        this.bufferManager = bufferManager;
 
         schemas.put(ColumnsMetaMetaTable.NAME, ColumnsMetaMetaTable.SCHEMA);
         schemas.put(TablesMetaMetaTable.NAME, TablesMetaMetaTable.SCHEMA);
@@ -40,7 +43,12 @@ public class MetadataOverseer {
     }
 
     private void attemptAddColumnsMetaEntries(String tableName, TableSchema rowSchema) throws IOException {
-        WritableScan columnsMetaScan = new FullTableScan(ColumnsMetaMetaTable.NAME, storageEngine, this);
+        WritableScan columnsMetaScan = new FullTableScan(
+            ColumnsMetaMetaTable.NAME, 
+            storageEngine, 
+            this, 
+            bufferManager
+        );
 
         columnsMetaScan.begin();
         LiteRow currentRow;
@@ -70,7 +78,12 @@ public class MetadataOverseer {
     }
 
     private void attemptAddTablesMetaEntries(String tableName, TableSchema rowSchema) throws IOException {
-        WritableScan tablesMetaScan = new FullTableScan(TablesMetaMetaTable.NAME, storageEngine, this);
+        WritableScan tablesMetaScan = new FullTableScan(
+            TablesMetaMetaTable.NAME, 
+            storageEngine, 
+            this,
+            bufferManager
+        );
 
         tablesMetaScan.begin();
         LiteRow currentRow;
@@ -97,7 +110,12 @@ public class MetadataOverseer {
 
         TableSchema schema = new TableSchema();
 
-        WritableScan columnsMetaScan = new FullTableScan(ColumnsMetaMetaTable.NAME, storageEngine, this);
+        WritableScan columnsMetaScan = new FullTableScan(
+            ColumnsMetaMetaTable.NAME, 
+            storageEngine, 
+            this,
+            bufferManager
+        );
 
         columnsMetaScan.begin();
         LiteRow currentRow;

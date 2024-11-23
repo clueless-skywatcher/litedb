@@ -8,7 +8,7 @@ import java.util.Arrays;
 import lombok.Getter;
 
 /** The block numbers in a file range from 0 up to number_of_blocks - 1 */
-public class LiteFile {
+public class LiteFile implements ILiteDBFile {
     public static final int BLOCK_SIZE = 4096;
 
     private @Getter File file;
@@ -20,25 +20,28 @@ public class LiteFile {
         if (this.file.createNewFile() || this.file.length() == 0) {
             appendNewBlock(0);
         }
-        this.raf = new RandomAccessFile(file, "rws");
+        if (this.raf == null) {
+            raf = new RandomAccessFile(file, "rws");
+        }
     }
 
     /**
      * Appends a new block of 0's to the file
      */
     public void appendNewBlock(int blockNumber) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(file, "rws");
+        if (raf == null) {
+            raf = new RandomAccessFile(file, "rws");
+        }
         raf.seek(blockNumber * BLOCK_SIZE);
         byte[] emptyBytes = new byte[BLOCK_SIZE];
         Arrays.fill(emptyBytes, (byte) 0);
         raf.write(emptyBytes);
-        raf.close();
     }
 
     /**
      * Read the byte contents of a given block to a logical page
      */
-    public LitePage readBlock(BlockIdentifier id) {
+    public ILiteDBPage readBlock(BlockIdentifier id) {
         validateBlock(id);
 
         try {
@@ -54,7 +57,7 @@ public class LiteFile {
         }
     }
 
-    public LitePage readBlock(int id) throws IOException {
+    public ILiteDBPage readBlock(int id) throws IOException {
         BlockIdentifier block = new BlockIdentifier(this.file.getName(), id, BLOCK_SIZE);
         return readBlock(block);
     }
@@ -62,7 +65,7 @@ public class LiteFile {
     /**
      * Write the byte contents of a page to a given block of memory
      */
-    public void writeBlock(BlockIdentifier id, LitePage page) {
+    public void writeBlock(BlockIdentifier id, ILiteDBPage page) {
         validateBlock(id);
 
         try {
@@ -76,7 +79,7 @@ public class LiteFile {
         }
     }
 
-    public void writeBlock(int id, LitePage page) throws IOException {
+    public void writeBlock(int id, ILiteDBPage page) throws IOException {
         BlockIdentifier block = new BlockIdentifier(this.file.getName(), id, BLOCK_SIZE);
         writeBlock(block, page);
     }
@@ -107,5 +110,9 @@ public class LiteFile {
         if (id.getBlockNumber() >= getBlockCount() || id.getBlockNumber() < 0) {
             throw new RuntimeException(String.format("Invalid block number. Number of blocks in file: %d", getBlockCount()));
         }
+    }
+
+    public String getFileName() {
+        return this.file.getName();
     }
 }
