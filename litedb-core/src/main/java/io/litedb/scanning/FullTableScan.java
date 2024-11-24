@@ -26,12 +26,29 @@ public class FullTableScan implements WritableScan {
     private LiteFile tableFile;
     private @Getter TableSchema tableSchema;
 
+    private boolean moveToFirstDirtySlot;
+
     private int slotsPerPage;
 
     public FullTableScan(String tableName, LiteStorageEngine engine, MetadataOverseer metadataOverseer)
             throws IOException {
         this.tableName = tableName;
         this.storageEngine = engine;
+        this.moveToFirstDirtySlot = false;
+
+        this.tableFile = this.storageEngine.getFile(tableName + ".lt");
+        this.tableSchema = metadataOverseer.getTableSchema(tableName);
+    }
+
+    public FullTableScan(String tableName, 
+        LiteStorageEngine engine, 
+        MetadataOverseer metadataOverseer,
+        boolean moveToFirstDirtySlot
+    )
+            throws IOException {
+        this.tableName = tableName;
+        this.storageEngine = engine;
+        this.moveToFirstDirtySlot = moveToFirstDirtySlot;
 
         this.tableFile = this.storageEngine.getFile(tableName + ".lt");
         this.tableSchema = metadataOverseer.getTableSchema(tableName);
@@ -40,6 +57,14 @@ public class FullTableScan implements WritableScan {
     public void begin() throws IOException {
         moveToBlock(0);
         this.slotsPerPage = currentPage.getContents().length / tableSchema.getSize();
+
+        if (moveToFirstDirtySlot) {
+            while (!isDirtySlot()) {
+                if (!next()) {
+                    break;
+                }
+            }
+        }
     }
 
     public void moveToBlock(int blockNumber) throws IOException {

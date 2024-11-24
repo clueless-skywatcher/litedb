@@ -29,7 +29,7 @@ public class DeleteFromTableStatement implements LiteQLStatement {
     @Override
     public void execute(LiteDB db) {
         try {
-            DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer());
+            DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer(), true);
             WritableScan scan = (WritableScan) plan.start();
 
             int rowsDeleted = 0;

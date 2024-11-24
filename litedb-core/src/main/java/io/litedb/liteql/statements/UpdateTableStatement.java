@@ -67,7 +67,7 @@ public class UpdateTableStatement implements LiteQLStatement {
                 data.put(field, value);
             }
 
-            DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer());
+            DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer(), true);
             WritableScan scan = (WritableScan) plan.start();
             
             int rowsUpdated = 0;

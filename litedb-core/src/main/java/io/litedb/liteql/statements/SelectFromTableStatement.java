@@ -39,7 +39,7 @@ public class SelectFromTableStatement implements LiteQLStatement {
             long timeTaken = System.currentTimeMillis();
             TableSchema schema = db.getOverseer().getTableSchema(tableName);
 
-            DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer());
+            DBPlan plan = new FullTablePlan(tableName, db.getStorageEngine(), db.getOverseer(), true);
             
             if (predicates != null) {
                 if (predicates.size() > 0) {
