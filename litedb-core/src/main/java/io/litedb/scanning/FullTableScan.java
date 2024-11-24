@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import io.litedb.buffer.LiteBufferManager;
+import io.litedb.filesystem.BlockIdentifier;
+import io.litedb.filesystem.ILiteDBPage;
 import io.litedb.filesystem.LiteFile;
-import io.litedb.filesystem.LitePage;
 import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.liteql.QueryPredicate;
 import io.litedb.metadata.MetadataOverseer;
@@ -17,8 +19,9 @@ import lombok.Getter;
 public class FullTableScan implements WritableScan {
     private @Getter String tableName;
     private @Getter LiteStorageEngine storageEngine;
+    private @Getter LiteBufferManager bufferManager;
 
-    private LitePage currentPage;
+    private ILiteDBPage currentPage;
     private int currentSlotInPage;
 
     private int currentBlock;
@@ -30,26 +33,32 @@ public class FullTableScan implements WritableScan {
 
     private int slotsPerPage;
 
-    public FullTableScan(String tableName, LiteStorageEngine engine, MetadataOverseer metadataOverseer)
+    public FullTableScan(
+        String tableName, 
+        LiteStorageEngine engine, 
+        MetadataOverseer metadataOverseer, 
+        LiteBufferManager bufferManager
+    )
             throws IOException {
         this.tableName = tableName;
         this.storageEngine = engine;
         this.moveToFirstDirtySlot = false;
-
         this.tableFile = this.storageEngine.getFile(tableName + ".lt");
         this.tableSchema = metadataOverseer.getTableSchema(tableName);
+        this.bufferManager = bufferManager;
     }
 
     public FullTableScan(String tableName, 
         LiteStorageEngine engine, 
         MetadataOverseer metadataOverseer,
+        LiteBufferManager bufferManager,
         boolean moveToFirstDirtySlot
     )
             throws IOException {
         this.tableName = tableName;
         this.storageEngine = engine;
         this.moveToFirstDirtySlot = moveToFirstDirtySlot;
-
+        this.bufferManager = bufferManager;
         this.tableFile = this.storageEngine.getFile(tableName + ".lt");
         this.tableSchema = metadataOverseer.getTableSchema(tableName);
     }
@@ -68,7 +77,8 @@ public class FullTableScan implements WritableScan {
     }
 
     public void moveToBlock(int blockNumber) throws IOException {
-        currentPage = this.tableFile.readBlock(blockNumber);
+        BlockIdentifier block = new BlockIdentifier(tableFile.getFileName(), blockNumber, LiteFile.BLOCK_SIZE);
+        currentPage = bufferManager.pinBuffer(block).getPage();
         currentBlock = blockNumber;
         currentSlotInPage = 0;
     }
@@ -140,7 +150,7 @@ public class FullTableScan implements WritableScan {
             currentPage.setData(slotPosition + 1 + tableSchema.getOffset(field), row.getData(field));
         }
 
-        this.tableFile.writeBlock(currentBlock, currentPage);
+        bufferManager.flushAll();
     }
 
     @Override
@@ -172,7 +182,7 @@ public class FullTableScan implements WritableScan {
             }
             next();
         }
-        this.tableFile.writeBlock(currentBlock, currentPage);
+        bufferManager.flushAll();
         return rowsUpdated;
     }
 
@@ -197,12 +207,12 @@ public class FullTableScan implements WritableScan {
             }
             next();
         }
-        this.tableFile.writeBlock(currentBlock, currentPage);
         return rowsDeleted;
     }
 
-    private void deleteSlot(int slot) {
+    private void deleteSlot(int slot) throws IOException {
         int slotPosition = slot * tableSchema.getSize();
         currentPage.setByte(slotPosition, (byte) 0);
+        bufferManager.flushAll();
     }
 }

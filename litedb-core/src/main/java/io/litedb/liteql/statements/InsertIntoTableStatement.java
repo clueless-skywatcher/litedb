@@ -47,7 +47,7 @@ public class InsertIntoTableStatement implements LiteQLStatement {
                 } 
             }
             try {
-                WritableScan scan = new FullTableScan(tableName, db.getStorageEngine(), db.getOverseer());
+                WritableScan scan = new FullTableScan(tableName, db.getStorageEngine(), db.getOverseer(), db.getBufferManager());
                 scan.begin();
                 scan.insert(new LiteRow(data));
             } catch (IOException e) {

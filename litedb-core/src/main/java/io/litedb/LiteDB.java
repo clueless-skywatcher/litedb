@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import io.litedb.buffer.LiteBufferManager;
 import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.metadata.MetadataOverseer;
 import io.litedb.scanning.DBScan;
@@ -19,12 +20,14 @@ import lombok.Getter;
 public class LiteDB {
     private @Getter LiteStorageEngine storageEngine;
     private @Getter MetadataOverseer overseer;
+    private @Getter LiteBufferManager bufferManager;
 
     public LiteDB(String dbDirectory) {
         this.storageEngine = new LiteStorageEngine(dbDirectory);
-        this.overseer = new MetadataOverseer(storageEngine);
+        this.bufferManager = new LiteBufferManager(storageEngine);
+        this.overseer = new MetadataOverseer(storageEngine, bufferManager);
     }
-
+    
     public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {
         this.overseer.addTable(tableName, new TableSchema(fields));
         this.storageEngine.getFile(tableName + ".lt");
@@ -32,7 +35,7 @@ public class LiteDB {
 
     public void scanTable(String tableName) {
         try {
-            DBScan scan = new FullTableScan(tableName, storageEngine, overseer);
+            DBScan scan = new FullTableScan(tableName, storageEngine, overseer, bufferManager);
             scan.begin();
             LiteRow currentRow;
             int rowCount = 0;
@@ -52,7 +55,7 @@ public class LiteDB {
 
     public void scanTable(String tableName, List<String> fields) {
         try {
-            ProjectionScan newScan = new ProjectionScan(new FullTableScan(tableName, storageEngine, overseer), fields);
+            ProjectionScan newScan = new ProjectionScan(new FullTableScan(tableName, storageEngine, overseer, bufferManager), fields);
             newScan.begin();
             LiteRow currentRow;
             int rowCount = 0;
@@ -69,7 +72,7 @@ public class LiteDB {
 
     public void insertValues(String tableName, Map<String, TupleData<?>> values) {
         try {
-            WritableScan scan = new FullTableScan(tableName, storageEngine, overseer);
+            WritableScan scan = new FullTableScan(tableName, storageEngine, overseer, bufferManager);
             scan.begin();
             scan.insert(new LiteRow(values));
         } catch (IOException e) {

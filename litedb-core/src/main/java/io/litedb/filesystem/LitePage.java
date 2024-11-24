@@ -14,7 +14,7 @@ import io.litedb.tuples.data.info.VarcharInfo;
 /**
  * Denotes a page in memory. This page is used to set and get data
  */
-public class LitePage {
+public class LitePage implements ILiteDBPage {
     private ByteBuffer contents;
 
     public LitePage(ByteBuffer contents) {
@@ -23,6 +23,10 @@ public class LitePage {
 
     public LitePage(byte[] contents) {
         this.contents = ByteBuffer.wrap(contents);
+    }
+
+    public LitePage(int blockSize) {
+        this.contents = ByteBuffer.allocate(blockSize);
     }
 
     public byte[] getContents() {

@@ -14,6 +14,9 @@ public class LiteDBMain {
 		while (true) {
 			System.out.print(">> ");
 			String stmt = scanner.nextLine();
+			if (stmt.length() == 0) {
+				continue;
+			}
 			if (stmt.equals("!q")) {
 				break;
 			}
