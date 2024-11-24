@@ -45,6 +45,7 @@ public class FullTableScan implements WritableScan {
         this.moveToFirstDirtySlot = false;
         this.tableFile = this.storageEngine.getFile(tableName + ".lt");
         this.tableSchema = metadataOverseer.getTableSchema(tableName);
+        this.bufferManager = bufferManager;
     }
 
     public FullTableScan(String tableName, 
