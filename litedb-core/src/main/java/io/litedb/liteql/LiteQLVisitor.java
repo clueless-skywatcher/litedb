@@ -1,9 +1,11 @@
 package io.litedb.liteql;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.litedb.liteql.LiteQueryParser.CreateTableQueryContext;
 import io.litedb.liteql.LiteQueryParser.DdlStatementContext;
@@ -23,6 +25,8 @@ import io.litedb.liteql.LiteQueryParser.UpdateQueryContext;
 import io.litedb.liteql.statements.CreateTableStatement;
 import io.litedb.liteql.statements.DeleteFromTableStatement;
 import io.litedb.liteql.statements.InsertIntoTableStatement;
+import io.litedb.liteql.statements.LiteQLStatement;
+import io.litedb.liteql.statements.SelectFromMultipleTablesStatement;
 import io.litedb.liteql.statements.SelectFromTableStatement;
 import io.litedb.liteql.statements.UpdateTableStatement;
 import io.litedb.tuples.data.info.TupleDatumInfo;
@@ -84,16 +88,34 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     }
 
     @Override
-    public SelectFromTableStatement visitSelectQuery(SelectQueryContext ctx) {
+    public LiteQLStatement visitSelectQuery(SelectQueryContext ctx) {
         List<String> projection = visitProjection(ctx.projection());
-        String tableName = ctx.tableName.getText();
+        
+        List<String> tableNames = new ArrayList<>();
+        for (int i = 0; i < ctx.tableNames().identifier().size(); i++) {
+            tableNames.add(ctx.tableNames().identifier(i).getText());
+        }
+
+        Set<String> tableNameSet = new HashSet<>(tableNames);
+        if (tableNameSet.size() < tableNames.size()) {
+            throw new RuntimeException("Tablenames are repeated in SELECT statement");
+        }
+
+        if (tableNames.size() == 1) {
+            String tableName = tableNames.get(0);
+            if (ctx.filter() != null) {
+                List<QueryPredicate> predicates = visitFilter(ctx.filter());
+                return new SelectFromTableStatement(tableName, projection, predicates);
+            }
+    
+            return new SelectFromTableStatement(tableName, projection);
+        }
 
         if (ctx.filter() != null) {
             List<QueryPredicate> predicates = visitFilter(ctx.filter());
-            return new SelectFromTableStatement(tableName, projection, predicates);
+            return new SelectFromMultipleTablesStatement(tableNames, projection, predicates);
         }
-
-        return new SelectFromTableStatement(tableName, projection);
+        return new SelectFromMultipleTablesStatement(tableNames, projection);
     }
 
     @Override
@@ -121,7 +143,7 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     @Override
     public Object visitCreateTableQuery(CreateTableQueryContext ctx) {
         String tableName = ctx.identifier().getText();
-        Map<String, TupleDatumInfo> fields = new HashMap<>();
+        Map<String, TupleDatumInfo> fields = new LinkedHashMap<>();
         for (FieldDefsContext field : ctx.fieldDefs()) {
             String fieldName = field.identifier().getText();
             TupleDatumInfo fieldType = TupleDatumInfo.inferTypeFromString(field.fieldType().getText());
@@ -181,7 +203,7 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     public UpdateTableStatement visitUpdateQuery(UpdateQueryContext ctx) {
         String tableName = ctx.tableName.getText();
 
-        Map<String, String> updateColumns = new HashMap<>();
+        Map<String, String> updateColumns = new LinkedHashMap<>();
 
         for (int i = 0; i < ctx.updateColumn().size(); i++) {
             String fieldName = ctx.updateColumn(i).fieldName.getText();

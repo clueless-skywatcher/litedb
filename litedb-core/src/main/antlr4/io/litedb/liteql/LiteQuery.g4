@@ -26,7 +26,11 @@ dmlStatement
     ;
 
 selectQuery
-    : SELECT projection FROM tableName=identifier filter?
+    : SELECT projection FROM tableNames filter?
+    ;
+
+tableNames
+    : identifier (',' identifier)*
     ;
 
 filter
