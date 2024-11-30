@@ -34,26 +34,20 @@ public class FullTableScan implements WritableScan {
     private int slotsPerPage;
 
     public FullTableScan(
-        String tableName, 
-        LiteStorageEngine engine, 
-        MetadataOverseer metadataOverseer, 
-        LiteBufferManager bufferManager
-    )
+            String tableName,
+            LiteStorageEngine engine,
+            MetadataOverseer metadataOverseer,
+            LiteBufferManager bufferManager)
             throws IOException {
-        this.tableName = tableName;
-        this.storageEngine = engine;
-        this.moveToFirstDirtySlot = false;
-        this.tableFile = this.storageEngine.getFile(tableName + ".lt");
-        this.tableSchema = metadataOverseer.getTableSchema(tableName);
-        this.bufferManager = bufferManager;
+        this(tableName, engine, metadataOverseer, bufferManager, false);
     }
 
-    public FullTableScan(String tableName, 
-        LiteStorageEngine engine, 
-        MetadataOverseer metadataOverseer,
-        LiteBufferManager bufferManager,
-        boolean moveToFirstDirtySlot
-    )
+    public FullTableScan(
+            String tableName,
+            LiteStorageEngine engine,
+            MetadataOverseer metadataOverseer,
+            LiteBufferManager bufferManager,
+            boolean moveToFirstDirtySlot)
             throws IOException {
         this.tableName = tableName;
         this.storageEngine = engine;

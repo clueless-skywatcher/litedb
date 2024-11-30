@@ -1,8 +1,8 @@
 package io.litedb.tuples;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 import io.litedb.tuples.data.info.TupleDatumInfo;
 
@@ -16,12 +16,12 @@ public class TableSchema {
     }
 
     public TableSchema() {
-        this.fields = new HashMap<>();
+        this.fields = new LinkedHashMap<>();
         updateOffsets();
     }
 
     private void updateOffsets() {
-        this.offsets = new HashMap<>();
+        this.offsets = new LinkedHashMap<>();
 
         int currentOffset = 0;
 
@@ -69,5 +69,11 @@ public class TableSchema {
 
     public boolean hasField(String string) {
         return this.fields.containsKey(string);
+    }
+
+    public TableSchema appendSchema(TableSchema other) {
+        TableSchema newSchema = new TableSchema(fields);
+        newSchema.addFields(other.fields);
+        return newSchema;
     }
 }

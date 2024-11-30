@@ -43,7 +43,7 @@ public class LiteQueryLexer extends Lexer {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'('", "','", "')'", null, "'and'", "'create'", "'delete'", "'drop'", 
+			null, "','", "'('", "')'", null, "'and'", "'create'", "'delete'", "'drop'", 
 			"'from'", "'if'", "'insert'", "'into'", "'select'", "'set'", "'table'", 
 			"'update'", "'values'", "'where'", "'with'", "'='", null, "'<'", "'<='", 
 			"'>'", "'>='", "'+'", "'-'", "'*'", "'/'", "'%'", "'||'", "';'"
@@ -199,8 +199,8 @@ public class LiteQueryLexer extends Lexer {
 		"\u0000\u0000\u0000A\u00dd\u0001\u0000\u0000\u0000C\u00e0\u0001\u0000\u0000"+
 		"\u0000E\u00e2\u0001\u0000\u0000\u0000G\u00ed\u0001\u0000\u0000\u0000I"+
 		"\u00f1\u0001\u0000\u0000\u0000K\u00fb\u0001\u0000\u0000\u0000M\u0107\u0001"+
-		"\u0000\u0000\u0000O\u010d\u0001\u0000\u0000\u0000QR\u0005(\u0000\u0000"+
-		"R\u0002\u0001\u0000\u0000\u0000ST\u0005,\u0000\u0000T\u0004\u0001\u0000"+
+		"\u0000\u0000\u0000O\u010d\u0001\u0000\u0000\u0000QR\u0005,\u0000\u0000"+
+		"R\u0002\u0001\u0000\u0000\u0000ST\u0005(\u0000\u0000T\u0004\u0001\u0000"+
 		"\u0000\u0000UV\u0005)\u0000\u0000V\u0006\u0001\u0000\u0000\u0000WY\u0007"+
 		"\u0000\u0000\u0000XW\u0001\u0000\u0000\u0000YZ\u0001\u0000\u0000\u0000"+
 		"ZX\u0001\u0000\u0000\u0000Z[\u0001\u0000\u0000\u0000[\b\u0001\u0000\u0000"+

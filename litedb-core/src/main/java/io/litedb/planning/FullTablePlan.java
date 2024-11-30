@@ -2,20 +2,25 @@ package io.litedb.planning;
 
 import java.io.IOException;
 
+import io.litedb.LiteDB;
 import io.litedb.buffer.LiteBufferManager;
 import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.metadata.MetadataOverseer;
 import io.litedb.scanning.DBScan;
 import io.litedb.scanning.FullTableScan;
 
+import lombok.Getter;
+
 public class FullTablePlan implements DBPlan {
-    private String tableName;
+    private @Getter String tableName;
     private LiteStorageEngine storageEngine;
     private MetadataOverseer overseer;
     private boolean scanMode;
     private LiteBufferManager bufferManager;
     
-    
+    public FullTablePlan(String tableName, LiteDB db, boolean scanMode) {
+        this(tableName, db.getStorageEngine(), db.getOverseer(), db.getBufferManager(), scanMode);
+    }
     
     public FullTablePlan(String tableName, 
         LiteStorageEngine storageEngine, 
