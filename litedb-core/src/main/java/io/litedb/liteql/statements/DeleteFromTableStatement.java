@@ -14,8 +14,8 @@ import io.litedb.scanning.WritableScan;
 
 public class DeleteFromTableStatement implements LiteQLStatement {
     private @Getter LiteQLResult result;
-    private String tableName;
-    private List<QueryPredicate> predicates;
+    private @Getter String tableName;
+    private @Getter List<QueryPredicate> predicates;
 
     public DeleteFromTableStatement(String tableName) {
         this.tableName = tableName;
@@ -36,6 +36,40 @@ public class DeleteFromTableStatement implements LiteQLStatement {
                 db.getBufferManager(),
                 true
             );
+            WritableScan scan = (WritableScan) plan.start();
+
+            int rowsDeleted = 0;
+
+            if (predicates != null) {
+                rowsDeleted = scan.delete(predicates);
+            } else {
+                rowsDeleted = scan.delete();
+            }
+
+            this.result = new DeleteFromTableResult(tableName, rowsDeleted);
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isDDL() {
+        return false;
+    }
+
+    @Override
+    public boolean isDML() {
+        return true;
+    }
+
+    @Override
+    public boolean isDQL() {
+        return false;
+    }
+
+    @Override
+    public void execute(LiteDB db, DBPlan plan) {
+        try {
             WritableScan scan = (WritableScan) plan.start();
 
             int rowsDeleted = 0;

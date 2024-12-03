@@ -5,6 +5,8 @@ import java.util.Scanner;
 
 import io.litedb.liteql.LiteQLParsingMachine;
 import io.litedb.liteql.statements.LiteQLStatement;
+import io.litedb.liteql.statements.SelectFromTableStatement;
+import io.litedb.planning.DBPlan;
 
 public class LiteDBMain {
 	public static void main(String[] args) throws IOException {
@@ -22,8 +24,19 @@ public class LiteDBMain {
 			}
 
 			LiteQLStatement statementObj = machine.parseStatement(stmt);
-			statementObj.execute(db);
 
+			if (statementObj.isDQL()) {
+				DBPlan plan = db.getQueryPlanner().createPlan((SelectFromTableStatement) statementObj);
+				statementObj.execute(db, plan);
+			}
+			else if (statementObj.isDML()) {
+				DBPlan plan = db.getModifyPlanner().createPlan(statementObj);
+				statementObj.execute(db, plan);
+			}
+			else {
+				statementObj.execute(db);
+			}
+			
 			System.out.println(statementObj.getResult().toString());
 			System.out.println();
 		}

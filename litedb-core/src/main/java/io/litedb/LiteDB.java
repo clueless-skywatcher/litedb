@@ -7,6 +7,10 @@ import java.util.Map;
 import io.litedb.buffer.LiteBufferManager;
 import io.litedb.filesystem.LiteStorageEngine;
 import io.litedb.metadata.MetadataOverseer;
+import io.litedb.planning.planner.AbstractModifyPlanner;
+import io.litedb.planning.planner.AbstractQueryPlanner;
+import io.litedb.planning.planner.LiteModifyPlanner;
+import io.litedb.planning.planner.LiteQueryPlanner;
 import io.litedb.scanning.DBScan;
 import io.litedb.scanning.FullTableScan;
 import io.litedb.scanning.ProjectionScan;
@@ -21,11 +25,15 @@ public class LiteDB {
     private @Getter LiteStorageEngine storageEngine;
     private @Getter MetadataOverseer overseer;
     private @Getter LiteBufferManager bufferManager;
+    private @Getter AbstractQueryPlanner queryPlanner;
+    private @Getter AbstractModifyPlanner modifyPlanner;
 
     public LiteDB(String dbDirectory) {
         this.storageEngine = new LiteStorageEngine(dbDirectory);
         this.bufferManager = new LiteBufferManager(storageEngine);
         this.overseer = new MetadataOverseer(storageEngine, bufferManager);
+        this.queryPlanner = new LiteQueryPlanner(this);
+        this.modifyPlanner = new LiteModifyPlanner(this);
     }
     
     public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {
