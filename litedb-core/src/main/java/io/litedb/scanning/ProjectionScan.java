@@ -41,7 +41,11 @@ public class ProjectionScan implements DBScan {
 
     @Override
     public TableSchema getTableSchema() {
-        return scan.getTableSchema();
+        TableSchema schema = new TableSchema();
+        for (String field: fields) {
+            schema.addField(field, scan.getTableSchema().getFieldInfo(field));
+        }
+        return schema;
     }
 
 }

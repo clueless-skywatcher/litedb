@@ -26,7 +26,6 @@ import io.litedb.liteql.statements.CreateTableStatement;
 import io.litedb.liteql.statements.DeleteFromTableStatement;
 import io.litedb.liteql.statements.InsertIntoTableStatement;
 import io.litedb.liteql.statements.LiteQLStatement;
-import io.litedb.liteql.statements.SelectFromMultipleTablesStatement;
 import io.litedb.liteql.statements.SelectFromTableStatement;
 import io.litedb.liteql.statements.UpdateTableStatement;
 import io.litedb.tuples.data.info.TupleDatumInfo;
@@ -105,17 +104,17 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
             String tableName = tableNames.get(0);
             if (ctx.filter() != null) {
                 List<QueryPredicate> predicates = visitFilter(ctx.filter());
-                return new SelectFromTableStatement(tableName, projection, predicates);
+                return new SelectFromTableStatement(List.of(tableName), projection, predicates);
             }
     
-            return new SelectFromTableStatement(tableName, projection);
+            return new SelectFromTableStatement(List.of(tableName), projection);
         }
 
         if (ctx.filter() != null) {
             List<QueryPredicate> predicates = visitFilter(ctx.filter());
-            return new SelectFromMultipleTablesStatement(tableNames, projection, predicates);
+            return new SelectFromTableStatement(tableNames, projection, predicates);
         }
-        return new SelectFromMultipleTablesStatement(tableNames, projection);
+        return new SelectFromTableStatement(tableNames, projection);
     }
 
     @Override

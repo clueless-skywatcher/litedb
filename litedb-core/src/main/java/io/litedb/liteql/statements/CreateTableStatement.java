@@ -5,6 +5,7 @@ import java.util.Map;
 import io.litedb.LiteDB;
 import io.litedb.liteql.statements.results.CreateTableResult;
 import io.litedb.liteql.statements.results.LiteQLResult;
+import io.litedb.planning.DBPlan;
 import io.litedb.tuples.data.info.TupleDatumInfo;
 import lombok.Getter;
 
@@ -26,5 +27,25 @@ public class CreateTableStatement implements LiteQLStatement {
         CreateTableResult result = new CreateTableResult(tableName);
         result.setTimeTaken(System.currentTimeMillis() - timeTaken);
         this.result = result;
+    }
+
+    @Override
+    public boolean isDDL() {
+        return true;
+    }
+
+    @Override
+    public boolean isDML() {
+        return false;
+    }
+
+    @Override
+    public boolean isDQL() {
+        return false;
+    }
+
+    @Override
+    public void execute(LiteDB db, DBPlan plan) {
+        throw new UnsupportedOperationException("Plans not supported for table, view or index creation");
     }    
 }

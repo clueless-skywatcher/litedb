@@ -23,9 +23,9 @@ import io.litedb.tuples.data.info.VarcharInfo;
 import lombok.Getter;
 
 public class UpdateTableStatement implements LiteQLStatement {
-    private String tableName;
-    private Map<String, String> updateData;
-    private List<QueryPredicate> predicates;
+    private @Getter String tableName;
+    private @Getter Map<String, String> updateData;
+    private @Getter List<QueryPredicate> predicates;
 
     private @Getter LiteQLResult result;
 
@@ -74,6 +74,64 @@ public class UpdateTableStatement implements LiteQLStatement {
                 db.getBufferManager(),
                 true
             );
+            WritableScan scan = (WritableScan) plan.start();
+            
+            int rowsUpdated = 0;
+
+            if (predicates != null) {
+                rowsUpdated = scan.update(data, predicates);
+            } else {
+                rowsUpdated = scan.update(data);
+            }  
+            
+            this.result = new UpdateTableResult(tableName, rowsUpdated);
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isDDL() {
+        return false;
+    }
+
+    @Override
+    public boolean isDML() {
+        return true;
+    }
+
+    @Override
+    public boolean isDQL() {
+        return false;
+    }
+
+    @Override
+    public void execute(LiteDB db, DBPlan plan) {
+        try {
+            TableSchema schema = db.getOverseer().getTableSchema(tableName);
+            Map<String, TupleData<?>> data = new LinkedHashMap<>();
+            TupleData<?> value;
+            for (String field: updateData.keySet()) {
+                TupleDatumInfo info = schema.getFieldInfo(field);
+                String rawValue = updateData.get(field);
+                if (info instanceof IntegerInfo) {
+                    value = new IntegerData(Integer.parseInt(rawValue));
+                } else if (info instanceof BooleanInfo) {
+                    value = new BooleanData(Boolean.parseBoolean(rawValue));
+                } else if (info instanceof VarcharInfo){
+                    VarcharInfo varcharInfo = (VarcharInfo) info;
+                    String finalVal = rawValue.toString();
+                    if (finalVal.startsWith("\'") && finalVal.endsWith("\'")) {
+                        finalVal = finalVal.substring(1, finalVal.length() - 1);
+                    }
+                    value = new VarcharData(finalVal, varcharInfo.getMaxSize());
+                } else {
+                    throw new RuntimeException("Invalid data type");
+                }
+
+                data.put(field, value);
+            }
+
             WritableScan scan = (WritableScan) plan.start();
             
             int rowsUpdated = 0;
