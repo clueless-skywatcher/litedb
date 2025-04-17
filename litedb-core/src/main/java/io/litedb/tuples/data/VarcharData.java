@@ -2,6 +2,7 @@ package io.litedb.tuples.data;
 
 import java.nio.ByteBuffer;
 
+import io.litedb.tuples.TupleDataEnum;
 import lombok.Getter;
 
 public class VarcharData implements TupleData<String> {

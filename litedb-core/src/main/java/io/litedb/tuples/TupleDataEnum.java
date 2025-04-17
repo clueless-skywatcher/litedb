@@ -1,4 +1,4 @@
-package io.litedb.tuples.data;
+package io.litedb.tuples;
 
 import lombok.Getter;
 
