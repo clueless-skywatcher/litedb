@@ -26,7 +26,7 @@ public class LTFile implements LTDBFile {
     }
 
     /**
-     * Appends a new block of 0's to the file
+     * Appends a new page of 0's to the file
      */
     public void appendNewBlock(int blockNumber) throws IOException {
         if (raf == null) {

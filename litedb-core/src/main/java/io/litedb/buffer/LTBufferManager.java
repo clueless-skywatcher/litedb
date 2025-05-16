@@ -17,10 +17,10 @@ public class LTBufferManager {
     private @Getter int availableBuffers;
     
     /**
-     * Buffer Pool manager class
+     * Buffer Pool manager class.
      * 
      * Calling this initialises an array of empty buffer objects (LiteBuffer)
-     * that holds a particular page
+     * each of which can hold a page
      * @param storageEngine
      */
     public LTBufferManager(LTStorageEngine storageEngine) {

@@ -6,6 +6,11 @@ import io.litedb.buffer.LTBufferManager;
 public class LTNaiveReplacementStrategy implements LTBufferReplacementStrategy {
     private LTBufferManager bufferManager;
 
+    /**
+     * The Naive strategy loops through each buffer in the buffer pool, 
+     * finds the first buffer that has no pins on it and simply returns it
+     * @param bufferManager
+     */
     public LTNaiveReplacementStrategy(LTBufferManager bufferManager) {
         this.bufferManager = bufferManager;
     }

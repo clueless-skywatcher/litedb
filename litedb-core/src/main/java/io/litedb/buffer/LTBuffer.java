@@ -24,20 +24,37 @@ public class LTBuffer {
         this.pins = 0;
     }
 
+    /**
+     * Checks if the current buffer has no pins by any transaction
+     * @return
+     */
     public boolean isReplaceable() {
         return pins == 0;
     }
 
+    /**
+     * Pin the buffer
+     */
     public void pin() {
         pins++;
     }
 
+    /**
+     * Release a pin of the buffer (if there is one)
+     */
     public void release() {
         if (pins > 0) {
             pins--;
         }
     }
 
+    /**
+     * Load a block of data from the disk into the buffer
+     * for caching
+     * @param block
+     * @param engine
+     * @throws IOException
+     */
     public void loadBlock(LTBlockIdentifier block, LTStorageEngine engine) throws IOException {
         flush(engine);
         tag = new LTBufferTag(block.getFileName(), block.getBlockNumber());
@@ -45,6 +62,11 @@ public class LTBuffer {
         page = file.readBlock(block);
     }
 
+    /**
+     * Flush the data held in the buffer to the disk
+     * @param engine
+     * @throws IOException
+     */
     public void flush(LTStorageEngine engine) throws IOException {
         if (tag != null) {
             LTDBFile file = engine.getFile(tag.getFileName());
