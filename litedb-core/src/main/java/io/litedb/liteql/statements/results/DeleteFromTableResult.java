@@ -2,7 +2,7 @@ package io.litedb.liteql.statements.results;
 
 import java.util.List;
 
-import io.litedb.tuples.LiteRow;
+import io.litedb.tuples.LTRow;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +21,7 @@ public class DeleteFromTableResult implements LiteQLResult {
     }
 
     @Override
-    public List<LiteRow> getRows() {
+    public List<LTRow> getRows() {
         return List.of();
     }    
 }

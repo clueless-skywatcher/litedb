@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-import io.litedb.tuples.LiteRow;
+import io.litedb.tuples.LTRow;
 import lombok.Getter;
 import lombok.Setter;
 
 public class SelectFromTableResult implements LiteQLResult {
-    private List<LiteRow> rows = new ArrayList<>();
+    private List<LTRow> rows = new ArrayList<>();
     private List<String> fields;
 
     private @Getter @Setter long timeTaken;
@@ -21,11 +21,11 @@ public class SelectFromTableResult implements LiteQLResult {
     }
 
     @Override
-    public List<LiteRow> getRows() {
+    public List<LTRow> getRows() {
         return rows;
     }
 
-    public void addRow(LiteRow row) {
+    public void addRow(LTRow row) {
         rows.add(row);
     }
 
@@ -38,7 +38,7 @@ public class SelectFromTableResult implements LiteQLResult {
 
         StringJoiner rowStrings = new StringJoiner("\n");
 
-        for (LiteRow row : rows) {
+        for (LTRow row : rows) {
             StringJoiner rowString = new StringJoiner(", ");
             for (String field : fields) {
                 rowString.add(row.getData(field).toString());

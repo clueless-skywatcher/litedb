@@ -4,48 +4,48 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import io.litedb.buffer.LiteBufferManager;
-import io.litedb.filesystem.LiteStorageEngine;
-import io.litedb.metadata.MetadataOverseer;
-import io.litedb.planning.planner.AbstractModifyPlanner;
-import io.litedb.planning.planner.AbstractQueryPlanner;
-import io.litedb.planning.planner.LiteModifyPlanner;
-import io.litedb.planning.planner.LiteQueryPlanner;
-import io.litedb.scanning.DBScan;
-import io.litedb.scanning.FullTableScan;
-import io.litedb.scanning.ProjectionScan;
-import io.litedb.scanning.WritableScan;
-import io.litedb.tuples.LiteRow;
-import io.litedb.tuples.TableSchema;
-import io.litedb.tuples.data.TupleData;
-import io.litedb.tuples.data.info.TupleDatumInfo;
+import io.litedb.buffer.LTBufferManager;
+import io.litedb.filesystem.LTStorageEngine;
+import io.litedb.metadata.LTMetadataOverseer;
+import io.litedb.planning.planner.LTAbstractModifyPlanner;
+import io.litedb.planning.planner.LTAbstractQueryPlanner;
+import io.litedb.planning.planner.LTModifyPlanner;
+import io.litedb.planning.planner.LTQueryPlanner;
+import io.litedb.scanning.LTDBScan;
+import io.litedb.scanning.LTFullTableScan;
+import io.litedb.scanning.LTProjectionScan;
+import io.litedb.scanning.LTWritableScan;
+import io.litedb.tuples.LTRow;
+import io.litedb.tuples.LTSchema;
+import io.litedb.tuples.data.LTTupleData;
+import io.litedb.tuples.data.info.LTTupleDatumInfo;
 import lombok.Getter;
 
 public class LiteDB {
-    private @Getter LiteStorageEngine storageEngine;
-    private @Getter MetadataOverseer overseer;
-    private @Getter LiteBufferManager bufferManager;
-    private @Getter AbstractQueryPlanner queryPlanner;
-    private @Getter AbstractModifyPlanner modifyPlanner;
+    private @Getter LTStorageEngine storageEngine;
+    private @Getter LTMetadataOverseer overseer;
+    private @Getter LTBufferManager bufferManager;
+    private @Getter LTAbstractQueryPlanner queryPlanner;
+    private @Getter LTAbstractModifyPlanner modifyPlanner;
 
     public LiteDB(String dbDirectory) {
-        this.storageEngine = new LiteStorageEngine(dbDirectory);
-        this.bufferManager = new LiteBufferManager(storageEngine);
-        this.overseer = new MetadataOverseer(storageEngine, bufferManager);
-        this.queryPlanner = new LiteQueryPlanner(this);
-        this.modifyPlanner = new LiteModifyPlanner(this);
+        this.storageEngine = new LTStorageEngine(dbDirectory);
+        this.bufferManager = new LTBufferManager(storageEngine);
+        this.overseer = new LTMetadataOverseer(storageEngine, bufferManager);
+        this.queryPlanner = new LTQueryPlanner(this);
+        this.modifyPlanner = new LTModifyPlanner(this);
     }
     
-    public void createTable(String tableName, Map<String, TupleDatumInfo> fields) {
-        this.overseer.addTable(tableName, new TableSchema(fields));
+    public void createTable(String tableName, Map<String, LTTupleDatumInfo> fields) {
+        this.overseer.addTable(tableName, new LTSchema(fields));
         this.storageEngine.getFile(tableName + ".lt");
     }
 
     public void scanTable(String tableName) {
         try {
-            DBScan scan = new FullTableScan(tableName, storageEngine, overseer, bufferManager);
+            LTDBScan scan = new LTFullTableScan(tableName, storageEngine, overseer, bufferManager);
             scan.begin();
-            LiteRow currentRow;
+            LTRow currentRow;
             int rowCount = 0;
             while ((currentRow = scan.readRow()) != null) {
                 System.out.println(currentRow);
@@ -63,9 +63,9 @@ public class LiteDB {
 
     public void scanTable(String tableName, List<String> fields) {
         try {
-            ProjectionScan newScan = new ProjectionScan(new FullTableScan(tableName, storageEngine, overseer, bufferManager), fields);
+            LTProjectionScan newScan = new LTProjectionScan(new LTFullTableScan(tableName, storageEngine, overseer, bufferManager), fields);
             newScan.begin();
-            LiteRow currentRow;
+            LTRow currentRow;
             int rowCount = 0;
             while ((currentRow = newScan.readRow()) != null) {
                 System.out.println(currentRow);
@@ -78,11 +78,11 @@ public class LiteDB {
         }
     }
 
-    public void insertValues(String tableName, Map<String, TupleData<?>> values) {
+    public void insertValues(String tableName, Map<String, LTTupleData<?>> values) {
         try {
-            WritableScan scan = new FullTableScan(tableName, storageEngine, overseer, bufferManager);
+            LTWritableScan scan = new LTFullTableScan(tableName, storageEngine, overseer, bufferManager);
             scan.begin();
-            scan.insert(new LiteRow(values));
+            scan.insert(new LTRow(values));
         } catch (IOException e) {
             e.printStackTrace();
         }

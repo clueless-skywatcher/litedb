@@ -3,14 +3,14 @@ package io.litedb;
 import java.io.IOException;
 import java.util.Scanner;
 
-import io.litedb.liteql.LiteQLParsingMachine;
-import io.litedb.liteql.statements.LiteQLStatement;
-import io.litedb.liteql.statements.SelectFromTableStatement;
-import io.litedb.planning.DBPlan;
+import io.litedb.liteql.LTParsingMachine;
+import io.litedb.liteql.statements.LTStatement;
+import io.litedb.liteql.statements.LTSelectFromTableStatement;
+import io.litedb.planning.LTDBPlan;
 
 public class LiteDBMain {
 	public static void main(String[] args) throws IOException {
-		LiteQLParsingMachine machine = new LiteQLParsingMachine();
+		LTParsingMachine machine = new LTParsingMachine();
 		LiteDB db = new LiteDB(".litedb");
 		Scanner scanner = new Scanner(System.in);
 		while (true) {
@@ -23,14 +23,14 @@ public class LiteDBMain {
 				break;
 			}
 
-			LiteQLStatement statementObj = machine.parseStatement(stmt);
+			LTStatement statementObj = machine.parseStatement(stmt);
 
 			if (statementObj.isDQL()) {
-				DBPlan plan = db.getQueryPlanner().createPlan((SelectFromTableStatement) statementObj);
+				LTDBPlan plan = db.getQueryPlanner().createPlan((LTSelectFromTableStatement) statementObj);
 				statementObj.execute(db, plan);
 			}
 			else if (statementObj.isDML()) {
-				DBPlan plan = db.getModifyPlanner().createPlan(statementObj);
+				LTDBPlan plan = db.getModifyPlanner().createPlan(statementObj);
 				statementObj.execute(db, plan);
 			}
 			else {
