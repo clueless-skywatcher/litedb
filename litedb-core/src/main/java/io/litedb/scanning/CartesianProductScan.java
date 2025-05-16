@@ -1,7 +1,7 @@
 package io.litedb.scanning;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import io.litedb.tuples.LiteRow;
@@ -42,7 +42,7 @@ public class CartesianProductScan implements DBScan {
             return null;
         }
 
-        Map<String, TupleData<?>> data = new LinkedHashMap<>();
+        Map<String, TupleData<?>> data = new HashMap<>();
 
         for (String field: rowL.getFields()) {
             if (rowR.getFields().contains(field)) {
@@ -65,7 +65,7 @@ public class CartesianProductScan implements DBScan {
         TableSchema schemaL = left.getTableSchema();
         TableSchema schemaR = right.getTableSchema();
 
-        Map<String, TupleDatumInfo> fields = new LinkedHashMap<>();
+        Map<String, TupleDatumInfo> fields = new HashMap<>();
 
         for (String field: schemaL.getFields()) {
             if (schemaR.getFields().contains(field)) {

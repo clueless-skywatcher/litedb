@@ -1,6 +1,6 @@
 package io.litedb.liteql.statements;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +36,7 @@ public class InsertIntoTableStatement implements LiteQLStatement {
     public void execute(LiteDB db) {
         try {
             TableSchema schema = db.getOverseer().getTableSchema(tableName);
-            Map<String, TupleData<?>> data = new LinkedHashMap<>();
+            Map<String, TupleData<?>> data = new HashMap<>();
             for (int f = 0; f < row.size(); f++) {
                 String fieldName = fields.get(f);
                 TupleDatumInfo info = schema.getFieldInfo(fieldName);
@@ -75,7 +75,7 @@ public class InsertIntoTableStatement implements LiteQLStatement {
     public void execute(LiteDB db, DBPlan plan) {
         try {
             TableSchema schema = db.getOverseer().getTableSchema(tableName);
-            Map<String, TupleData<?>> data = new LinkedHashMap<>();
+            Map<String, TupleData<?>> data = new HashMap<>();
             for (int f = 0; f < row.size(); f++) {
                 String fieldName = fields.get(f);
                 TupleDatumInfo info = schema.getFieldInfo(fieldName);

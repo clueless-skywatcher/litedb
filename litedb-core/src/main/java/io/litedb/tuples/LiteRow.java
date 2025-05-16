@@ -1,7 +1,7 @@
 package io.litedb.tuples;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import io.litedb.tuples.data.TupleData;
@@ -10,7 +10,7 @@ public class LiteRow {
     private Map<String, TupleData<?>> data;
     
     public LiteRow() {
-        this.data = new LinkedHashMap<>();
+        this.data = new HashMap<>();
     }
 
     public LiteRow(Map<String, TupleData<?>> data) {

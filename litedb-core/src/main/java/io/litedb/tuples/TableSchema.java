@@ -2,7 +2,7 @@ package io.litedb.tuples;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 import io.litedb.tuples.data.info.TupleDatumInfo;
 
@@ -16,12 +16,12 @@ public class TableSchema {
     }
 
     public TableSchema() {
-        this.fields = new LinkedHashMap<>();
+        this.fields = new HashMap<>();
         updateOffsets();
     }
 
     private void updateOffsets() {
-        this.offsets = new LinkedHashMap<>();
+        this.offsets = new HashMap<>();
 
         int currentOffset = 0;
 

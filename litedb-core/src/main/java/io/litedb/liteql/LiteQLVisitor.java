@@ -1,7 +1,7 @@
 package io.litedb.liteql;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -142,7 +142,7 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     @Override
     public Object visitCreateTableQuery(CreateTableQueryContext ctx) {
         String tableName = ctx.identifier().getText();
-        Map<String, TupleDatumInfo> fields = new LinkedHashMap<>();
+        Map<String, TupleDatumInfo> fields = new HashMap<>();
         for (FieldDefsContext field : ctx.fieldDefs()) {
             String fieldName = field.identifier().getText();
             TupleDatumInfo fieldType = TupleDatumInfo.inferTypeFromString(field.fieldType().getText());
@@ -202,7 +202,7 @@ public class LiteQLVisitor extends LiteQueryBaseVisitor<Object> {
     public UpdateTableStatement visitUpdateQuery(UpdateQueryContext ctx) {
         String tableName = ctx.tableName.getText();
 
-        Map<String, String> updateColumns = new LinkedHashMap<>();
+        Map<String, String> updateColumns = new HashMap<>();
 
         for (int i = 0; i < ctx.updateColumn().size(); i++) {
             String fieldName = ctx.updateColumn(i).fieldName.getText();
